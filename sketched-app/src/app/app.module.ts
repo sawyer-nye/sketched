@@ -3,11 +3,13 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppComponent } from './app.component';
 import { PlayerViewComponent } from './components/player-view/player-view.component';
+import { OscillatorViewComponent } from './components/player-view/oscillator-view/oscillator-view.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    PlayerViewComponent
+    PlayerViewComponent,
+    OscillatorViewComponent
   ],
   imports: [
     BrowserModule

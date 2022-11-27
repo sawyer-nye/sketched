@@ -1,0 +1,10 @@
+<div class="oscillator-view d-flex flex-row overflow-auto">
+  <div class="card" *ngFor="let oscillator of oscillators">
+    <div class="card-header">Oscillator</div>
+    <div class="card-body">
+      <h5 class="card-title">Title</h5>
+      <p class="card-text">Text goes here</p>
+      <button class="btn btn-primary" (click)="playOscillator(oscillator)">Play</button>
+    </div>
+  </div>
+</div>

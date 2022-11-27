@@ -4,6 +4,7 @@ import { AudioContext } from 'standardized-audio-context';
 
 import { Note } from 'src/app/models/note.model';
 import { OscillatorService } from '../oscillator/oscillator.service';
+import { notes } from './sound.data';
 
 @Injectable({
   providedIn: 'root'
@@ -19,12 +20,11 @@ export class SoundService {
     this.oscillators = this.oscillatorService.getOscillators('sine', 3);
   }
 
-  playNote(note: Note): void {   
+  playNote(note: Note): void {
     const oscillatorOne = this.oscillators[0];
     oscillatorOne.frequency.value = note.frequency;
 
-    oscillatorOne.start(this.audioContext.currentTime);
-    oscillatorOne.stop(this.audioContext.currentTime + this.strikeLength);
+    this.oscillatorService.playOscillator(oscillatorOne, this.strikeLength);
   }
 
   // getSemitone(note: Note, steps: number = 1): Note {

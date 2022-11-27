@@ -27,9 +27,15 @@ export class OscillatorService {
     return this._oscillators;
   }
 
+  playOscillator(oscillator: OscillatorNode, duration: number): void {
+    oscillator.start(this.ctxService.getAudioContext().currentTime);
+    oscillator.stop(this.ctxService.getAudioContext().currentTime + duration)
+  };
+
   getNewOscillator(type: OscillatorType): OscillatorNode {
     const oscillator = this.ctxService.getAudioContext().createOscillator();
     oscillator.connect(this.ctxService.getAudioContext().destination);
+    // todo: when making new ones we need to disconnect the old ones, or need to just modify the ones in place
     oscillator.type = type;
 
     return oscillator;

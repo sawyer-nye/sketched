@@ -1,1 +1,8 @@
 <p>player-view works!</p>
+<div class="player-view d-flex overflow-auto">
+  <div class="card" *ngFor="let note of notes" (click)="playNote(note)">
+    <div>{{ note.name + note.octave }}</div>
+  </div>
+</div>
+
+<app-oscillator-view></app-oscillator-view>

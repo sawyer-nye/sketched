@@ -4,6 +4,12 @@ import { NoteName } from 'src/app/enums/note-name.enum';
 const semitoneRatio = 1.05946309436;
 const tuningFrequency = 440.0;
 
+const getNextOctave = (note: Note): Note => ({
+  name: note.name,
+  frequency: note.frequency * 2.0,
+  octave: note.octave + 1
+});
+
 const octave_zero = [
   {
     name: NoteName.C,
@@ -68,22 +74,13 @@ const octave_zero = [
 ];
 
 const octave_one = octave_zero.map((note: Note) => getNextOctave(note));
-
 const octave_two = octave_one.map((note: Note) => getNextOctave(note));
-
 const octave_three = octave_two.map((note: Note) => getNextOctave(note));
-
 const octave_four = octave_three.map((note: Note) => getNextOctave(note));
-
 const octave_five = octave_four.map((note: Note) => getNextOctave(note));
-
 const octave_six = octave_five.map((note: Note) => getNextOctave(note));
-
 const octave_seven = octave_six.map((note: Note) => getNextOctave(note));
-
 const octave_eight = octave_seven.map((note: Note) => getNextOctave(note));
-
-const getNextOctave = (note: Note): Note => getNextOctave(note);
 
 export const notes: Note[] = [
   ...octave_zero,
