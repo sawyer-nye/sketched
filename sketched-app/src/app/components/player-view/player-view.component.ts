@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
+import { NoteName } from 'src/app/enums/note-name.enum';
 import { Note } from 'src/app/models/note.model';
 import { notes } from 'src/app/services/sound/sound.data';
-import { SoundService } from 'src/app/services/sound/sound.service';
+import { ToneService } from 'src/app/services/tone/tone.service';
 
 @Component({
   selector: 'app-player-view',
@@ -9,13 +10,15 @@ import { SoundService } from 'src/app/services/sound/sound.service';
   styleUrls: ['./player-view.component.scss'],
 })
 export class PlayerViewComponent {
+  scaleRootNote: NoteName = NoteName.C;
   notes: Note[] = notes;
+  octaveThreeNotes: Note[] = notes.filter(note => note.octave === 3);
 
-  constructor(private readonly soundService: SoundService) {}
+  constructor(private readonly toneService: ToneService) {}
 
   ngOnInit(): void {}
 
   playNote(note: Note) {
-    this.soundService.playNote(note);
+    this.toneService.playNote(note);
   }
 }

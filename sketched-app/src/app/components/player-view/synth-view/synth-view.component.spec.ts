@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { OscillatorViewComponent } from './oscillator-view.component';
+import { OscillatorViewComponent } from './synth-view.component';
 
 describe('OscillatorViewComponent', () => {
   let component: OscillatorViewComponent;

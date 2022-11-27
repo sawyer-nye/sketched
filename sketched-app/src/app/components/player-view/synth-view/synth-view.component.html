@@ -1,0 +1,10 @@
+<div class="synth-view d-flex flex-row overflow-auto">
+  <div class="card" *ngFor="let synth of synths">
+    <div class="card-header">Synth</div>
+    <div class="card-body">
+      <h5 class="card-title">Title</h5>
+      <p class="card-text">Text goes here</p>
+      <button class="btn btn-primary" (click)="playSynth(synth)">Play</button>
+    </div>
+  </div>
+</div>
