@@ -1,13 +1,43 @@
 <div class="player-view">
   <p>Scale Root Note</p>
-  <select name="selectRootNote" [(ngModel)]="scaleRootNotePosition">
+
+  <select
+    name="selectRootNote"
+    [(ngModel)]="scaleRootNotePosition"
+    (change)="updateScale()"
+  >
     <option *ngFor="let note of octaveThreeNotes" [value]="note.position">
       {{ note.name }}
     </option>
   </select>
   {{ scaleRootNotePosition }}
-  <button class="btn btn-outline-primary" (click)="updateScale()">Get notes</button>
 
+  <select
+    name="selectedScaleMode"
+    [(ngModel)]="scaleMode"
+    (change)="updateScale()"
+  >
+    <option *ngFor="let mode of modes" [value]="mode">
+      {{ mode }}
+    </option>
+  </select>
+
+  <div class="d-flex overflow-auto">
+    <button
+      *ngFor="let chord of chords; let i = index"
+      class="card square d-flex flex-column justify-content-center align-items-center"
+      (click)="playChord(chord)"
+    >
+      <div class="d-flex flex-row">
+        <div class="btn fs-6" *ngFor="let note of chord">
+          {{ note | note }}
+        </div>
+      </div>
+      <div class="chord-degree fs-5">
+        {{ i | degree }}
+      </div>
+    </button>
+  </div>
   <div class="d-flex overflow-auto">
     <div class="card" *ngFor="let note of scaleNotes" (click)="playNote(note)">
       <div>{{ note | note }}</div>
@@ -15,7 +45,12 @@
   </div>
   <div class="d-flex overflow-auto">
     <div class="card" *ngFor="let note of notes" (click)="playNote(note)">
-      <div>{{ note | note }}</div>
+      <div class="d-flex flex-row justify-content-center fs-5">
+        <div class="note-name">{{ note | note: note.octave }}</div>
+      </div>
+      <div class="d-flex flex-row justify-content-center fs-6">
+        <div class="note-position">{{ note.position }}</div>
+      </div>
     </div>
   </div>
 

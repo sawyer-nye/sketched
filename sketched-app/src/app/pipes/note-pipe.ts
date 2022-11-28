@@ -19,7 +19,7 @@ export class NotePipe implements PipeTransform {
     [NoteName.G_SHARP]: 'G#'
   }
 
-  transform(value: Note): string {
-    return this.nameMap[value.name];
+  transform(value: Note, octave?: number): string {
+    return this.nameMap[value.name] + (octave?.toString() ?? '');
   }
 }
