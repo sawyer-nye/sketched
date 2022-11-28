@@ -5,68 +5,81 @@ const semitoneRatio = 1.05946309436;
 const tuningFrequency = 440.0;
 
 const getNextOctave = (note: Note): Note => ({
+  position: note.position + 12,
   name: note.name,
   frequency: note.frequency * 2.0,
   octave: note.octave + 1
 });
 
-const octave_zero = [
+const octave_zero: Note[] = [
   {
+    position: 0,
     name: NoteName.C,
     frequency: 16.35,
     octave: 0,
   },
   {
+    position: 1,
     name: NoteName.C_SHARP,
     frequency: 17.32,
     octave: 0,
   },
   {
+    position: 2,
     name: NoteName.D,
     frequency: 18.35,
     octave: 0,
   },
   {
+    position: 3,
     name: NoteName.D_SHARP,
     frequency: 19.45,
     octave: 0,
   },
   {
+    position: 4,
     name: NoteName.E,
     frequency: 20.6,
     octave: 0,
   },
   {
+    position: 5,
     name: NoteName.F,
     frequency: 21.83,
     octave: 0,
   },
   {
+    position: 6,
     name: NoteName.F_SHARP,
     frequency: 23.12,
     octave: 0,
   },
   {
+    position: 7,
     name: NoteName.G,
     frequency: 24.5,
     octave: 0,
   },
   {
+    position: 8,
     name: NoteName.G_SHARP,
     frequency: 25.96,
     octave: 0,
   },
   {
+    position: 9,
     name: NoteName.A,
     frequency: 27.5,
     octave: 0,
   },
   {
+    position: 10,
     name: NoteName.A_SHARP,
     frequency: 29.14,
     octave: 0,
   },
   {
+    position: 11,
     name: NoteName.B,
     frequency: 30.87,
     octave: 0,

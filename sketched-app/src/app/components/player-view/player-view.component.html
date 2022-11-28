@@ -1,14 +1,21 @@
 <div class="player-view">
   <p>Scale Root Note</p>
-  <select name="selectRootNote" [(ngModel)]="scaleRootNote">
-    <option *ngFor="let note of octaveThreeNotes" [value]="note.name">
+  <select name="selectRootNote" [(ngModel)]="scaleRootNotePosition">
+    <option *ngFor="let note of octaveThreeNotes" [value]="note.position">
       {{ note.name }}
     </option>
   </select>
+  {{ scaleRootNotePosition }}
+  <button class="btn btn-outline-primary" (click)="updateScale()">Get notes</button>
 
   <div class="d-flex overflow-auto">
+    <div class="card" *ngFor="let note of scaleNotes" (click)="playNote(note)">
+      <div>{{ note | note }}</div>
+    </div>
+  </div>
+  <div class="d-flex overflow-auto">
     <div class="card" *ngFor="let note of notes" (click)="playNote(note)">
-      <div>{{ note.name + note.octave }}</div>
+      <div>{{ note | note }}</div>
     </div>
   </div>
 

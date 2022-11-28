@@ -21,7 +21,7 @@ export class ToneService {
   playCThree(): void {
     const now = Tone.now();
     const synthOne = this.synths[0];
-    synthOne?.triggerAttackRelease('C3', '2n', now); // todo: get rid of magic number
+    synthOne?.triggerAttackRelease('C3', '2n', now);
   }
 
   playNote(note: Note): void {
