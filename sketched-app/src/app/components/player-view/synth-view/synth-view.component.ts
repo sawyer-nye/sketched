@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import * as Tone from 'tone';
 
-import { ToneService } from 'src/app/services/tone/tone.service';
+import { ToneService } from 'src/app/services/tone.service';
 
 @Component({
   selector: 'app-synth-view',

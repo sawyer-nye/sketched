@@ -21,12 +21,19 @@ export class ToneService {
   playCThree(): void {
     const now = Tone.now();
     const synthOne = this.synths[0];
-    synthOne?.triggerAttackRelease('C3', '2n', now); // todo: get rid of magic number
+    synthOne?.triggerAttackRelease('C3', '2n', now);
   }
 
   playNote(note: Note): void {
     const now = Tone.now();
     const synthOne = this.synths[0];
     synthOne?.triggerAttackRelease(note.frequency, '4n', now);
+  }
+
+  playNotes(notes: Note[]): void {
+    const now = Tone.now();
+    const synthOne = this.synths[0];
+    const frequencies = notes.map(note => note.frequency);
+    synthOne?.triggerAttackRelease(frequencies, '4n', now)
   }
 }

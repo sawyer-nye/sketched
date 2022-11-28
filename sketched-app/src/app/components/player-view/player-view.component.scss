@@ -1,3 +1,13 @@
 .card {
-  min-width: 150px
+  min-width: 60px;
+
+  .note-name {
+    // border: 1px solid green;
+  }
+  .note-octave {
+    // border: 1px solid blue;
+  }
+  .note-position {
+    // border: 1px solid red;
+  }
 }
