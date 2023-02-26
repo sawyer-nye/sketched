@@ -12,9 +12,6 @@ import { ToneService } from 'src/app/services/tone.service';
 export class ChordsViewComponent {
   chords$: Observable<Note[][]> = this.musicService.currentChords$;
 
-  chords: Note[][] = [];
-  oneChord: Note[] = [];
-
   constructor(
     private readonly musicService: MusicService,
     private readonly toneService: ToneService
