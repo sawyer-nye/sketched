@@ -22,24 +22,14 @@
     </option>
   </select>
 
+  <app-chords-view></app-chords-view>
+
   <div class="d-flex overflow-auto">
-    <button
-      *ngFor="let chord of chords; let i = index"
-      class="card square d-flex flex-column justify-content-center align-items-center"
-      (click)="playChord(chord)"
+    <div
+      class="card"
+      *ngFor="let note of scaleNotes$ | async"
+      (click)="playNote(note)"
     >
-      <div class="d-flex flex-row">
-        <div class="btn fs-6" *ngFor="let note of chord">
-          {{ note | note }}
-        </div>
-      </div>
-      <div class="chord-degree fs-5">
-        {{ i | degree }}
-      </div>
-    </button>
-  </div>
-  <div class="d-flex overflow-auto">
-    <div class="card" *ngFor="let note of scaleNotes" (click)="playNote(note)">
       <div>{{ note | note }}</div>
     </div>
   </div>
