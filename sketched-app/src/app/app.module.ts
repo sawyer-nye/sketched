@@ -8,6 +8,7 @@ import { PlayerViewComponent } from './components/player-view/player-view.compon
 import { OscillatorViewComponent } from './components/player-view/synth-view/synth-view.component';
 import { DegreePipe } from './pipes/degree-pipe';
 import { NotePipe } from './pipes/note-pipe';
+import { AppRoutingModule } from './app-routing.module';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { NotePipe } from './pipes/note-pipe';
   ],
   imports: [
     BrowserModule,
-    FormsModule
+    FormsModule,
+    AppRoutingModule
   ],
   providers: [],
   bootstrap: [AppComponent]
