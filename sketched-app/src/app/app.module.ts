@@ -9,10 +9,12 @@ import { OscillatorViewComponent } from './components/player-view/synth-view/syn
 import { DegreePipe } from './pipes/degree-pipe';
 import { NotePipe } from './pipes/note-pipe';
 import { AppRoutingModule } from './app-routing.module';
+import { NavBarComponent } from './components/navbar/navbar.component';
 
 @NgModule({
   declarations: [
     AppComponent,
+    NavBarComponent,
     PlayerViewComponent,
     ChordsViewComponent,
     OscillatorViewComponent,
