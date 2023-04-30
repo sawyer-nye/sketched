@@ -8,7 +8,7 @@ const getNextOctave = (note: Note): Note => ({
   position: note.position + 12,
   name: note.name,
   frequency: note.frequency * 2.0,
-  octave: note.octave + 1
+  octave: note.octave + 1,
 });
 
 const octave_zero: Note[] = [
@@ -86,14 +86,18 @@ const octave_zero: Note[] = [
   },
 ];
 
-const octave_one = octave_zero.map((note: Note) => getNextOctave(note));
-const octave_two = octave_one.map((note: Note) => getNextOctave(note));
-const octave_three = octave_two.map((note: Note) => getNextOctave(note));
-const octave_four = octave_three.map((note: Note) => getNextOctave(note));
-const octave_five = octave_four.map((note: Note) => getNextOctave(note));
-const octave_six = octave_five.map((note: Note) => getNextOctave(note));
-const octave_seven = octave_six.map((note: Note) => getNextOctave(note));
-const octave_eight = octave_seven.map((note: Note) => getNextOctave(note));
+export const octave_one = octave_zero.map((note: Note) => getNextOctave(note));
+export const octave_two = octave_one.map((note: Note) => getNextOctave(note));
+export const octave_three = octave_two.map((note: Note) => getNextOctave(note));
+export const octave_four = octave_three.map((note: Note) =>
+  getNextOctave(note)
+);
+export const octave_five = octave_four.map((note: Note) => getNextOctave(note));
+export const octave_six = octave_five.map((note: Note) => getNextOctave(note));
+export const octave_seven = octave_six.map((note: Note) => getNextOctave(note));
+export const octave_eight = octave_seven.map((note: Note) =>
+  getNextOctave(note)
+);
 
 export const notes: Note[] = [
   ...octave_zero,
