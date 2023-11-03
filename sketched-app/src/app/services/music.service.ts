@@ -69,9 +69,12 @@ export class MusicService {
   getNextStep(fromNote: Note, step: Step): Note {
     const jumpDistance = step === Step.HALF ? 1 : 2;
     return (
-      notes.find(
-        (note: Note) => note.position === fromNote.position + jumpDistance
-      ) ?? { position: -1, name: NoteName.C, frequency: 0, octave: 0 }
+      notes.find((note: Note) => note.position === fromNote.position + jumpDistance) ?? {
+        position: -1,
+        name: NoteName.C,
+        frequency: 0,
+        octave: 0,
+      }
     );
   }
 

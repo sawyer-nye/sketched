@@ -8,9 +8,8 @@ describe('PlayerViewComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ PlayerViewComponent ]
-    })
-    .compileComponents();
+      declarations: [PlayerViewComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(PlayerViewComponent);
     component = fixture.componentInstance;

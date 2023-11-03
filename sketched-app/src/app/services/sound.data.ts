@@ -8,7 +8,7 @@ const getNextOctave = (note: Note): Note => ({
   position: note.position + 12,
   name: note.name,
   frequency: note.frequency * 2.0,
-  octave: note.octave + 1
+  octave: note.octave + 1,
 });
 
 const octave_zero: Note[] = [

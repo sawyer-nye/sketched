@@ -6,6 +6,6 @@ const routes: Routes = [{ path: '', component: PlayerViewComponent }];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
 export class AppRoutingModule {}

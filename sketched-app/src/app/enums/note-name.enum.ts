@@ -10,5 +10,5 @@ export enum NoteName {
   G_SHARP = 'G_SHARP',
   A = 'A',
   A_SHARP = 'A_SHARP',
-  B = 'B'
+  B = 'B',
 }

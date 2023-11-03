@@ -19,14 +19,10 @@ import { NavBarComponent } from './components/navbar/navbar.component';
     ChordsViewComponent,
     OscillatorViewComponent,
     NotePipe,
-    DegreePipe
+    DegreePipe,
   ],
-  imports: [
-    BrowserModule,
-    FormsModule,
-    AppRoutingModule
-  ],
+  imports: [BrowserModule, FormsModule, AppRoutingModule],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

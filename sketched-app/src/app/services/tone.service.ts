@@ -33,7 +33,7 @@ export class ToneService {
   playNotes(notes: Note[]): void {
     const now = Tone.now();
     const synthOne = this.synths[0];
-    const frequencies = notes.map(note => note.frequency);
-    synthOne?.triggerAttackRelease(frequencies, '4n', now)
+    const frequencies = notes.map((note) => note.frequency);
+    synthOne?.triggerAttackRelease(frequencies, '4n', now);
   }
 }

@@ -8,9 +8,8 @@ describe('OscillatorViewComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ OscillatorViewComponent ]
-    })
-    .compileComponents();
+      declarations: [OscillatorViewComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(OscillatorViewComponent);
     component = fixture.componentInstance;

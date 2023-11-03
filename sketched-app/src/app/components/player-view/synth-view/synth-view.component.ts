@@ -6,10 +6,10 @@ import { ToneService } from 'src/app/services/tone.service';
 @Component({
   selector: 'app-synth-view',
   templateUrl: './synth-view.component.html',
-  styleUrls: ['./synth-view.component.scss']
+  styleUrls: ['./synth-view.component.scss'],
 })
 export class OscillatorViewComponent implements OnInit {
-  synths: Tone.PolySynth[] = []
+  synths: Tone.PolySynth[] = [];
 
   constructor(private readonly toneService: ToneService) {}
 
