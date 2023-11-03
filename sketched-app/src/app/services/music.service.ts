@@ -6,6 +6,7 @@ import { NoteName } from '../enums/note-name.enum';
 import { Step } from '../enums/step.enum';
 import { Note } from '../models/note.model';
 import { notes } from './sound.data';
+import { ChordType } from '../enums/chord-type.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -31,21 +32,48 @@ export class MusicService {
     [Chord.VII]: [6, 1, 3],
   };
 
+  private readonly chordStepMap: Record<Chord, number> = {
+    [Chord.I]: 0,
+    [Chord.II]: 1,
+    [Chord.III]: 2,
+    [Chord.IV]: 3,
+    [Chord.V]: 4,
+    [Chord.VI]: 5,
+    [Chord.VII]: 6,
+  };
+
+  private readonly chordPatternsMap: Record<ChordType, number[]> = {
+    [ChordType.FIFTH]: [0, 4],
+    [ChordType.TRIAD]: [0, 2, 4],
+    [ChordType.SEVENTH]: [0, 2, 4, 6],
+    [ChordType.NINTH]: [],
+    [ChordType.ELEVENTH]: [],
+    [ChordType.THIRTEENTH]: [],
+    [ChordType.ADDED_NINTH]: [],
+    [ChordType.SUS]: [],
+    [ChordType.SUS_SEVENTH]: [],
+    [ChordType.SIXTH]: [],
+    [ChordType.SIXTH_NINTH]: [],
+    [ChordType.ADDED_ELEVENTH]: [],
+  };
+
   private readonly _subscriptions: Subscription[] = [];
+
   private readonly _currentScale = new BehaviorSubject<Note[]>([]);
   private readonly _currentChords = new BehaviorSubject<Note[][]>([]);
+  private readonly _allChords = new BehaviorSubject<Record<ChordType, Note[][]> | null>(null);
 
   readonly currentScale$: Observable<Note[]> = this._currentScale.asObservable();
   readonly currentChords$: Observable<Note[][]> = this._currentChords.asObservable();
+  readonly allChords$: Observable<Record<ChordType, Note[][]> | null> = this._allChords.asObservable();
 
-  readonly octaveThreeAndFourNotes = notes.filter(
-    (note) => note.octave === 3 || note.octave === 4
-  );
+  readonly octaveThreeAndFourNotes = notes.filter((note) => note.octave === 3 || note.octave === 4);
 
   constructor() {
     this._subscriptions.push(
       this._currentScale.subscribe((currentScale) => {
         this.setChords(currentScale);
+        this.setAllChords(currentScale);
       })
     );
   }
@@ -58,12 +86,20 @@ export class MusicService {
     return this._currentChords.getValue();
   }
 
+  get allChords() {
+    return this._allChords.getValue();
+  }
+
   setScale(rootNotePosition: number, mode: Mode): void {
     this._currentScale.next(this.generateScale(rootNotePosition, mode));
   }
 
   setChords(scaleNotes: Note[]) {
     this._currentChords.next(this.generateChords(scaleNotes));
+  }
+
+  setAllChords(scaleNotes: Note[]) {
+    this._allChords.next(this.generateAllChords(scaleNotes));
   }
 
   getNextStep(fromNote: Note, step: Step): Note {
@@ -91,24 +127,48 @@ export class MusicService {
     return newNotes;
   }
 
-  private generateChords(scaleNotes: Note[]): Note[][] {
+  private generateAllChords(scaleNotes: Note[]): Record<ChordType, Note[][]> {
+    return {
+      [ChordType.FIFTH]: this.generateChords(scaleNotes, ChordType.FIFTH),
+      [ChordType.TRIAD]: this.generateChords(scaleNotes, ChordType.TRIAD),
+      [ChordType.SEVENTH]: this.generateChords(scaleNotes, ChordType.SEVENTH),
+      [ChordType.NINTH]: this.generateChords(scaleNotes, ChordType.NINTH),
+      [ChordType.ELEVENTH]: this.generateChords(scaleNotes, ChordType.ELEVENTH),
+      [ChordType.THIRTEENTH]: this.generateChords(scaleNotes, ChordType.THIRTEENTH),
+      [ChordType.ADDED_NINTH]: this.generateChords(scaleNotes, ChordType.ADDED_NINTH),
+      [ChordType.SUS]: this.generateChords(scaleNotes, ChordType.SUS),
+      [ChordType.SUS_SEVENTH]: this.generateChords(scaleNotes, ChordType.SUS_SEVENTH),
+      [ChordType.SIXTH]: this.generateChords(scaleNotes, ChordType.SIXTH),
+      [ChordType.SIXTH_NINTH]: this.generateChords(scaleNotes, ChordType.SIXTH_NINTH),
+      [ChordType.ADDED_ELEVENTH]: this.generateChords(scaleNotes, ChordType.ADDED_ELEVENTH),
+    };
+  }
+
+  private generateChords(scaleNotes: Note[], chordType: ChordType = ChordType.TRIAD): Note[][] {
     return [
-      this.getChord(Chord.I, scaleNotes),
-      this.getChord(Chord.II, scaleNotes),
-      this.getChord(Chord.III, scaleNotes),
-      this.getChord(Chord.IV, scaleNotes),
-      this.getChord(Chord.V, scaleNotes),
-      this.getChord(Chord.VI, scaleNotes),
-      this.getChord(Chord.VII, scaleNotes),
+      this.getChord(Chord.I, scaleNotes, chordType),
+      this.getChord(Chord.II, scaleNotes, chordType),
+      this.getChord(Chord.III, scaleNotes, chordType),
+      this.getChord(Chord.IV, scaleNotes, chordType),
+      this.getChord(Chord.V, scaleNotes, chordType),
+      this.getChord(Chord.VI, scaleNotes, chordType),
+      this.getChord(Chord.VII, scaleNotes, chordType),
     ];
   }
 
-  private getChord(chord: Chord, notes: Note[]): Note[] {
+  private getChord(chord: Chord, notes: Note[], chordType: ChordType): Note[] {
     if (!notes.length) {
       return [];
     }
 
-    const pattern = this.triadsMap[chord];
-    return [notes[pattern[0]], notes[pattern[1]], notes[pattern[2]]];
+    const pattern = this.chordPatternsMap[chordType];
+    const chordSteps = this.chordStepMap[chord];
+
+    let result = [];
+    for (const rootStep of pattern) {
+      const index = (rootStep + chordSteps) % 7;
+      result.push(notes[index]);
+    }
+    return result;
   }
 }

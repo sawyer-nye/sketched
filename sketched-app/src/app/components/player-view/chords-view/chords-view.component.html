@@ -1,4 +1,38 @@
 <div class="chords-view">
+  <div class="d-flex overflow-auto" *ngIf="allChords$ | async">
+    <div *ngFor="let item of allChords$ | async | keyvalue : keepOriginalOrder">
+      <!-- <button
+        *ngFor="let chord of chords$ | async; let i = index"
+        class="card square d-flex flex-column justify-content-center align-items-center"
+        (click)="playChord(chord)"
+      >
+        <div class="d-flex flex-row">
+          <div class="btn fs-6" *ngFor="let note of chord">
+            {{ note | note : note.octave }}
+          </div>
+        </div>
+        <div class="chord-degree fs-5">
+          {{ i | degree }}
+        </div>
+      </button> -->
+      <p>{{ Number(item.key) | chordtype }} ++</p>
+      <button
+        *ngFor="let chord of item.value; let i = index"
+        (click)="playChord(chord)"
+        class="card square d-flex flex-column justify-content-center align-items-center"
+      >
+        <div class="d-flex flex-row">
+          <div class="btn fs-6" *ngFor="let note of chord">
+            {{ note | note : note.octave }}
+          </div>
+        </div>
+        <div class="chord-degree fs-5">
+          {{ i | degree }}
+        </div>
+      </button>
+      <!-- <p>{{ item.value }}</p> -->
+    </div>
+  </div>
   <div class="d-flex overflow-auto" *ngIf="chords$ | async">
     <button
       *ngFor="let chord of chords$ | async; let i = index"
