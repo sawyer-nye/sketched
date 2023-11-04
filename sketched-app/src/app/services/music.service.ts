@@ -13,13 +13,13 @@ import { ChordType } from '../enums/chord-type.enum';
 })
 export class MusicService {
   private readonly modesMap: Record<Mode, number[]> = {
-    [Mode.IONIAN]: [0, 2, 4, 5, 7, 9, 11, 12],
-    [Mode.AEOLIAN]: [0, 2, 3, 5, 7, 8, 10, 12],
-    [Mode.DORIAN]: [0, 2, 3, 5, 7, 9, 10, 12],
-    [Mode.PHRYGIAN]: [0, 1, 3, 5, 7, 8, 10, 12],
-    [Mode.LYDIAN]: [0, 2, 4, 6, 7, 9, 11, 12],
-    [Mode.MIXOLYDIAN]: [0, 2, 4, 5, 7, 9, 10, 12],
-    [Mode.LOCRIAN]: [0, 1, 3, 5, 6, 8, 10, 12],
+    [Mode.IONIAN]: [0, 2, 4, 5, 7, 9, 11],
+    [Mode.AEOLIAN]: [0, 2, 3, 5, 7, 8, 10],
+    [Mode.DORIAN]: [0, 2, 3, 5, 7, 9, 10],
+    [Mode.PHRYGIAN]: [0, 1, 3, 5, 7, 8, 10],
+    [Mode.LYDIAN]: [0, 2, 4, 6, 7, 9, 11],
+    [Mode.MIXOLYDIAN]: [0, 2, 4, 5, 7, 9, 10],
+    [Mode.LOCRIAN]: [0, 1, 3, 5, 6, 8, 10],
   };
 
   private readonly triadsMap: Record<Chord, number[]> = {
@@ -46,15 +46,15 @@ export class MusicService {
     [ChordType.FIFTH]: [0, 4],
     [ChordType.TRIAD]: [0, 2, 4],
     [ChordType.SEVENTH]: [0, 2, 4, 6],
-    [ChordType.NINTH]: [],
-    [ChordType.ELEVENTH]: [],
-    [ChordType.THIRTEENTH]: [],
-    [ChordType.ADDED_NINTH]: [],
-    [ChordType.SUS]: [],
-    [ChordType.SUS_SEVENTH]: [],
-    [ChordType.SIXTH]: [],
-    [ChordType.SIXTH_NINTH]: [],
-    [ChordType.ADDED_ELEVENTH]: [],
+    [ChordType.NINTH]: [0, 2, 4, 6, 8],
+    [ChordType.ELEVENTH]: [0, 2, 4, 6, 8, 10],
+    [ChordType.THIRTEENTH]: [0, 2, 4, 6, 8, 10, 12],
+    [ChordType.ADDED_NINTH]: [0, 2, 4, 8],
+    [ChordType.SUS]: [0, 3, 4],
+    [ChordType.SUS_SEVENTH]: [0, 3, 4, 6],
+    [ChordType.SIXTH]: [0, 2, 4, 5],
+    [ChordType.SIXTH_NINTH]: [0, 2, 4, 5, 8],
+    [ChordType.ADDED_ELEVENTH]: [0, 2, 4, 12],
   };
 
   private readonly _subscriptions: Subscription[] = [];
@@ -124,6 +124,16 @@ export class MusicService {
       newNotes.push(_notes[newPosition]);
     }
 
+    for (const step of this.modesMap[mode]) {
+      const newPosition = rootNotePosition + 12 + step;
+      newNotes.push(_notes[newPosition]);
+    }
+
+    for (const step of this.modesMap[mode]) {
+      const newPosition = rootNotePosition + 24 + step;
+      newNotes.push(_notes[newPosition]);
+    }
+
     return newNotes;
   }
 
@@ -166,8 +176,9 @@ export class MusicService {
 
     let result = [];
     for (const rootStep of pattern) {
-      const index = (rootStep + chordSteps) % 7;
-      result.push(notes[index]);
+      const index = (rootStep + chordSteps) % 21;
+      const note = notes[index];
+      result.push(note);
     }
     return result;
   }
