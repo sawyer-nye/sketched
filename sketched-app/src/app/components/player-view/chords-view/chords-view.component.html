@@ -2,7 +2,7 @@
   <div class="d-flex flex-column overflow-auto" *ngIf="allChords$ | async">
     <div class="container" *ngFor="let item of allChords$ | async | keyvalue : keepOriginalOrder">
       <div class="row">
-        <div class="col-1 d-flex align-items-center">{{ Number(item.key) | chordtype }}</div>
+        <div class="col-1 d-flex align-items-center">{{ item.key | chordtype }}</div>
         <div class="col-11 d-flex">
           <button
             *ngFor="let chord of item.value; let i = index"

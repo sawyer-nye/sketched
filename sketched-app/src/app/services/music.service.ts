@@ -22,16 +22,6 @@ export class MusicService {
     [Mode.LOCRIAN]: [0, 1, 3, 5, 6, 8, 10],
   };
 
-  private readonly triadsMap: Record<Chord, number[]> = {
-    [Chord.I]: [0, 2, 4],
-    [Chord.II]: [1, 3, 5],
-    [Chord.III]: [2, 4, 6],
-    [Chord.IV]: [3, 5, 7],
-    [Chord.V]: [4, 6, 1],
-    [Chord.VI]: [5, 7, 2],
-    [Chord.VII]: [6, 1, 3],
-  };
-
   private readonly chordStepMap: Record<Chord, number> = {
     [Chord.I]: 0,
     [Chord.II]: 1,
@@ -54,7 +44,7 @@ export class MusicService {
     [ChordType.SUS_SEVENTH]: [0, 3, 4, 6],
     [ChordType.SIXTH]: [0, 2, 4, 5],
     [ChordType.SIXTH_NINTH]: [0, 2, 4, 5, 8],
-    [ChordType.ADDED_ELEVENTH]: [0, 2, 4, 12],
+    [ChordType.ADDED_ELEVENTH]: [0, 2, 4, 10],
   };
 
   private readonly _subscriptions: Subscription[] = [];
@@ -102,6 +92,7 @@ export class MusicService {
     this._allChords.next(this.generateAllChords(scaleNotes));
   }
 
+  // currently unused
   getNextStep(fromNote: Note, step: Step): Note {
     const jumpDistance = step === Step.HALF ? 1 : 2;
     return (
