@@ -10,6 +10,7 @@ import { DegreePipe } from './pipes/degree-pipe';
 import { NotePipe } from './pipes/note-pipe';
 import { AppRoutingModule } from './app-routing.module';
 import { NavBarComponent } from './components/navbar/navbar.component';
+import { ChordTypePipe } from './pipes/chord-type-pipe';
 
 @NgModule({
   declarations: [
@@ -19,14 +20,11 @@ import { NavBarComponent } from './components/navbar/navbar.component';
     ChordsViewComponent,
     OscillatorViewComponent,
     NotePipe,
-    DegreePipe
+    DegreePipe,
+    ChordTypePipe,
   ],
-  imports: [
-    BrowserModule,
-    FormsModule,
-    AppRoutingModule
-  ],
+  imports: [BrowserModule, FormsModule, AppRoutingModule],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

@@ -1,8 +1,8 @@
-import { Pipe, PipeTransform } from "@angular/core";
-import { NoteName } from "../enums/note-name.enum";
-import { Note } from "../models/note.model";
+import { Pipe, PipeTransform } from '@angular/core';
+import { NoteName } from '../enums/note-name.enum';
+import { Note } from '../models/note.model';
 
-@Pipe({name: 'note'})
+@Pipe({ name: 'note' })
 export class NotePipe implements PipeTransform {
   private readonly nameMap: Record<NoteName, string> = {
     [NoteName.A]: 'A',
@@ -16,8 +16,8 @@ export class NotePipe implements PipeTransform {
     [NoteName.F]: 'F',
     [NoteName.F_SHARP]: 'F#',
     [NoteName.G]: 'G',
-    [NoteName.G_SHARP]: 'G#'
-  }
+    [NoteName.G_SHARP]: 'G#',
+  };
 
   transform(value: Note, octave?: number): string {
     return this.nameMap[value.name] + (octave?.toString() ?? '');

@@ -1,13 +1,15 @@
-.card {
-  min-width: 60px;
+.chords-container {
+  margin-left: 24px;
 
-  .note-name {
-    // border: 1px solid green;
-  }
-  .note-octave {
-    // border: 1px solid blue;
-  }
-  .note-position {
-    // border: 1px solid red;
+  .card {
+    .note-name {
+      // border: 1px solid green;
+    }
+    .note-octave {
+      // border: 1px solid blue;
+    }
+    .note-position {
+      // border: 1px solid red;
+    }
   }
 }

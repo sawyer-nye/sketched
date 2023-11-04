@@ -1,5 +1,7 @@
+import { KeyValue } from '@angular/common';
 import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
+import { ChordType } from 'src/app/enums/chord-type.enum';
 import { Note } from 'src/app/models/note.model';
 import { MusicService } from 'src/app/services/music.service';
 import { ToneService } from 'src/app/services/tone.service';
@@ -11,13 +13,17 @@ import { ToneService } from 'src/app/services/tone.service';
 })
 export class ChordsViewComponent {
   chords$: Observable<Note[][]> = this.musicService.currentChords$;
+  allChords$: Observable<Record<ChordType, Note[][]> | null> = this.musicService.allChords$;
 
-  constructor(
-    private readonly musicService: MusicService,
-    private readonly toneService: ToneService
-  ) {}
+  Number = Number;
+
+  constructor(private readonly musicService: MusicService, private readonly toneService: ToneService) {}
 
   playChord(notes: Note[]): void {
     this.toneService.playNotes(notes);
+  }
+
+  keepOriginalOrder(a: KeyValue<string, Note[][]>, b: KeyValue<string, Note[][]>): number {
+    return 0;
   }
 }

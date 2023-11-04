@@ -5,6 +5,12 @@
       "options": {
         "printWidth": 140
       }
+    },
+    {
+      "files": "src/**/*.ts",
+      "options": {
+        "printWidth": 120
+      }
     }
   ]
 }
