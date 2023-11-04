@@ -15,7 +15,7 @@ export class ChordsViewComponent {
   chords$: Observable<Note[][]> = this.musicService.currentChords$;
   allChords$: Observable<Record<ChordType, Note[][]> | null> = this.musicService.allChords$;
 
-  Number = Number;
+  ChordType = ChordType;
 
   constructor(private readonly musicService: MusicService, private readonly toneService: ToneService) {}
 

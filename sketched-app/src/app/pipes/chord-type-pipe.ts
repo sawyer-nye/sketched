@@ -18,7 +18,7 @@ export class ChordTypePipe implements PipeTransform {
     [ChordType.ADDED_ELEVENTH]: 'Added Eleventh',
   };
 
-  transform(value: ChordType): string {
-    return this.chordTypeMap[value];
+  transform(value: ChordType | string): string {
+    return this.chordTypeMap[value as ChordType];
   }
 }

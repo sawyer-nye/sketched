@@ -5,7 +5,7 @@
 
       <select name="selectRootNote" [(ngModel)]="scaleRootNotePosition" (change)="updateScale()">
         <option *ngFor="let note of octaveThreeNotes" [value]="note.position">
-          {{ note.name }}
+          {{ note | note }}
         </option>
       </select>
       {{ scaleRootNotePosition }}
