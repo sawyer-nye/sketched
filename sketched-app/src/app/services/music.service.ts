@@ -133,7 +133,7 @@ export class MusicService {
       const newPosition = rootNotePosition + 24 + step;
       newNotes.push(_notes[newPosition]);
     }
-
+    debugger;
     return newNotes;
   }
 

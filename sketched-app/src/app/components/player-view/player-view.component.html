@@ -1,18 +1,22 @@
-<div class="player-view">
-  <p>Scale Root Note</p>
+<div class="player-view container">
+  <div class="selector row">
+    <div class="col-4 offset-4">
+      <p class="d-inline">Scale Root Note</p>
 
-  <select name="selectRootNote" [(ngModel)]="scaleRootNotePosition" (change)="updateScale()">
-    <option *ngFor="let note of octaveThreeNotes" [value]="note.position">
-      {{ note.name }}
-    </option>
-  </select>
-  {{ scaleRootNotePosition }}
+      <select name="selectRootNote" [(ngModel)]="scaleRootNotePosition" (change)="updateScale()">
+        <option *ngFor="let note of octaveThreeNotes" [value]="note.position">
+          {{ note.name }}
+        </option>
+      </select>
+      {{ scaleRootNotePosition }}
 
-  <select name="selectedScaleMode" [(ngModel)]="scaleMode" (change)="updateScale()">
-    <option *ngFor="let mode of modes" [value]="mode">
-      {{ mode }}
-    </option>
-  </select>
+      <select name="selectedScaleMode" [(ngModel)]="scaleMode" (change)="updateScale()">
+        <option *ngFor="let mode of modes" [value]="mode">
+          {{ mode }}
+        </option>
+      </select>
+    </div>
+  </div>
 
   <app-chords-view></app-chords-view>
 

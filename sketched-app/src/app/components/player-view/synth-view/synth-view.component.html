@@ -1,6 +1,9 @@
 <div class="synth-view d-flex flex-row overflow-auto">
-  <div class="card" *ngFor="let synthSetup of synthSetups">
-    <div class="card-header">Synth</div>
+  <div class="card m-2" *ngFor="let synthSetup of synthSetups">
+    <div class="card-header d-flex justify-content-between">
+      <div>Synth</div>
+      <div>{{ synthSetup.synth.oscillator.type }}</div>
+    </div>
     <div class="d-flex flex-column">
       <button class="btn btn-primary m-2 align" (click)="playSynth(synthSetup.synth)">
         <span class="material-icons">play_arrow</span>

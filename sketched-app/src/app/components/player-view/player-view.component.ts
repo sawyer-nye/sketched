@@ -1,6 +1,5 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Chord } from 'src/app/enums/chord-enum';
 import { Mode } from 'src/app/enums/mode-enum';
 import { Note } from 'src/app/models/note.model';
 import { MusicService } from 'src/app/services/music.service';
@@ -16,21 +15,17 @@ export class PlayerViewComponent implements OnInit {
   scaleNotes$: Observable<Note[]> = this.musicService.currentScale$;
   chords$: Observable<Note[][]> = this.musicService.currentChords$;
 
-  scaleRootNotePosition: string = '63';
   scaleMode: Mode = Mode.IONIAN;
-  modes: Mode[] = [];
+  modes: Mode[] = Object.values(Mode);
   notes: Note[] = notes;
   octaveThreeNotes: Note[] = notes.filter((note) => note.octave === 3);
 
-  oneChord: Note[] = [];
+  scaleRootNotePosition: number = 36;
 
-  constructor(
-    private readonly musicService: MusicService,
-    private readonly toneService: ToneService
-  ) {}
+  constructor(private readonly musicService: MusicService, private readonly toneService: ToneService) {}
 
   ngOnInit(): void {
-    this.modes = Object.values(Mode);
+    this.updateScale();
   }
 
   playNote(note: Note): void {
