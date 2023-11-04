@@ -21,7 +21,6 @@ export class PlayerViewComponent implements OnInit {
   modes: Mode[] = [];
   notes: Note[] = notes;
   octaveThreeNotes: Note[] = notes.filter((note) => note.octave === 3);
-  // scaleNotes: Note[] = [];
 
   oneChord: Note[] = [];
 
@@ -43,9 +42,5 @@ export class PlayerViewComponent implements OnInit {
       Number(this.scaleRootNotePosition),
       this.scaleMode
     );
-  }
-
-  playChord(notes: Note[]): void {
-    this.toneService.playNotes(notes);
   }
 }
