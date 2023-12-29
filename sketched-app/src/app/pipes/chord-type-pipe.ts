@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { ChordType } from '../enums/chord-type.enum';
+import { ChordType } from '@app/enums/chord-type.enum';
 
 @Pipe({ standalone: true, name: 'chordtype' })
 export class ChordTypePipe implements PipeTransform {

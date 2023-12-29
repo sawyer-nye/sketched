@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NoteName } from 'src/app/enums/note-name.enum';
-import { Note } from 'src/app/models/note.model';
-import { NotePipe } from 'src/app/pipes/note-pipe';
-import { MusicService } from 'src/app/services/music/music.service';
-import { notes } from 'src/app/services/sound.data';
+import { NoteName } from '@app/enums/note-name.enum';
+import { Note } from '@app/models/note.model';
+import { NotePipe } from '@app/pipes/note-pipe';
+import { MusicService } from '@app/services/music/music.service';
+import { notes } from '@app/services/sound.data';
 
 @Component({
   standalone: true,

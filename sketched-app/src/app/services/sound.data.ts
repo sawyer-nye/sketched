@@ -1,5 +1,5 @@
-import { Note } from 'src/app/models/note.model';
-import { NoteName } from 'src/app/enums/note-name.enum';
+import { Note } from '@app/models/note.model';
+import { NoteName } from '@app/enums/note-name.enum';
 
 const semitoneRatio = 1.05946309436;
 const tuningFrequency = 440.0;

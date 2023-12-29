@@ -1,13 +1,13 @@
 import { CommonModule, KeyValue } from '@angular/common';
 import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ChordType } from 'src/app/enums/chord-type.enum';
-import { Note } from 'src/app/models/note.model';
-import { ChordTypePipe } from 'src/app/pipes/chord-type-pipe';
-import { DegreePipe } from 'src/app/pipes/degree-pipe';
-import { NotePipe } from 'src/app/pipes/note-pipe';
-import { MusicService } from 'src/app/services/music/music.service';
-import { ToneService } from 'src/app/services/tone/tone.service';
+import { ChordType } from '@app/enums/chord-type.enum';
+import { Note } from '@app/models/note.model';
+import { ChordTypePipe } from '@app/pipes/chord-type-pipe';
+import { DegreePipe } from '@app/pipes/degree-pipe';
+import { NotePipe } from '@app/pipes/note-pipe';
+import { MusicService } from '@app/services/music/music.service';
+import { ToneService } from '@app/services/tone/tone.service';
 
 @Component({
   standalone: true,

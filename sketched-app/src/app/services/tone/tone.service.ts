@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Note } from 'src/app/models/note.model';
 import * as Tone from 'tone';
 import { NonCustomOscillatorType } from 'tone/build/esm/source/oscillator/OscillatorInterface';
+
+import { Note } from '@app/models/note.model';
 
 export interface SynthSetup {
   id: number;

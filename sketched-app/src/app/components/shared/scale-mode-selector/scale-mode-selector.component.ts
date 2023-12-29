@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Mode } from 'src/app/enums/mode-enum';
-import { MusicService } from 'src/app/services/music/music.service';
+import { Mode } from '@app/enums/mode-enum';
+import { MusicService } from '@app/services/music/music.service';
 
 @Component({
   standalone: true,
