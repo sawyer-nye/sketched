@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import * as Tone from 'tone';
 
-import { SynthSetup, ToneService } from 'src/app/services/tone.service';
+import { SynthSetup, ToneService } from 'src/app/services/tone/tone.service';
 import { NonCustomOscillatorType } from 'tone/build/esm/source/oscillator/OscillatorInterface';
 import { CommonModule } from '@angular/common';
 

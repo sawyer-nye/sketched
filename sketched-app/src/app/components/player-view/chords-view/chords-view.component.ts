@@ -6,8 +6,8 @@ import { Note } from 'src/app/models/note.model';
 import { ChordTypePipe } from 'src/app/pipes/chord-type-pipe';
 import { DegreePipe } from 'src/app/pipes/degree-pipe';
 import { NotePipe } from 'src/app/pipes/note-pipe';
-import { MusicService } from 'src/app/services/music.service';
-import { ToneService } from 'src/app/services/tone.service';
+import { MusicService } from 'src/app/services/music/music.service';
+import { ToneService } from 'src/app/services/tone/tone.service';
 
 @Component({
   standalone: true,

@@ -4,13 +4,13 @@ import { Observable } from 'rxjs';
 import { Mode } from 'src/app/enums/mode-enum';
 import { Note } from 'src/app/models/note.model';
 import { NotePipe } from 'src/app/pipes/note-pipe';
-import { MusicService } from 'src/app/services/music.service';
+import { MusicService } from 'src/app/services/music/music.service';
 import { notes } from 'src/app/services/sound.data';
-import { ToneService } from 'src/app/services/tone.service';
+import { ToneService } from 'src/app/services/tone/tone.service';
 
 @Component({
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, NotePipe],
   templateUrl: './sketch-view.component.html',
 })
 export class SketchViewComponent {

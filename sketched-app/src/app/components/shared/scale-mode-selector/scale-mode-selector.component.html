@@ -1,0 +1,5 @@
+<select name="selectedScaleMode" [(ngModel)]="scaleMode" (change)="updateMode()">
+  <option *ngFor="let mode of modes" [value]="mode">
+    {{ mode }}
+  </option>
+</select>

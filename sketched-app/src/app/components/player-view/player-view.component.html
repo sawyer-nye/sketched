@@ -1,20 +1,8 @@
 <div class="player-view container">
   <div class="selector row">
     <div class="col-4 offset-4">
-      <p class="d-inline">Scale Root Note</p>
-
-      <select name="selectRootNote" [(ngModel)]="scaleRootNotePosition" (change)="updateScale()">
-        <option *ngFor="let note of octaveThreeNotes" [value]="note.position">
-          {{ note | note }}
-        </option>
-      </select>
-      {{ scaleRootNotePosition }}
-
-      <select name="selectedScaleMode" [(ngModel)]="scaleMode" (change)="updateScale()">
-        <option *ngFor="let mode of modes" [value]="mode">
-          {{ mode }}
-        </option>
-      </select>
+      <app-root-note-selector></app-root-note-selector>
+      <app-scale-mode-selector></app-scale-mode-selector>
     </div>
   </div>
 
