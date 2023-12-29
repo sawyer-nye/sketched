@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
-@Pipe({ name: 'degree' })
+@Pipe({ standalone: true, name: 'degree' })
 export class DegreePipe implements PipeTransform {
   private readonly degreeMap: Record<number, string> = {
     0: 'I',

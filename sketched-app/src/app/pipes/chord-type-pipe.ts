@@ -1,7 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { ChordType } from '../enums/chord-type.enum';
 
-@Pipe({ name: 'chordtype' })
+@Pipe({ standalone: true, name: 'chordtype' })
 export class ChordTypePipe implements PipeTransform {
   private readonly chordTypeMap: Record<ChordType, string> = {
     [ChordType.FIFTH]: 'Fifth',

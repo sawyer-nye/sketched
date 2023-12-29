@@ -2,7 +2,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { NoteName } from '../enums/note-name.enum';
 import { Note } from '../models/note.model';
 
-@Pipe({ name: 'note' })
+@Pipe({ standalone: true, name: 'note' })
 export class NotePipe implements PipeTransform {
   private readonly nameMap: Record<NoteName, string> = {
     [NoteName.A]: 'A',

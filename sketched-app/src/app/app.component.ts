@@ -1,9 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
+import { NavBarComponent } from './components/navbar/navbar.component';
+import { RouterModule } from '@angular/router';
 
 @Component({
+  standalone: true,
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
+  imports: [CommonModule, RouterModule, NavBarComponent],
 })
 export class AppComponent {
   title = 'sketched-app';

@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { OscillatorViewComponent } from './synth-view.component';
+import { SynthViewComponent } from './synth-view.component';
 
 describe('OscillatorViewComponent', () => {
-  let component: OscillatorViewComponent;
-  let fixture: ComponentFixture<OscillatorViewComponent>;
+  let component: SynthViewComponent;
+  let fixture: ComponentFixture<SynthViewComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [OscillatorViewComponent],
+      declarations: [SynthViewComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(OscillatorViewComponent);
+    fixture = TestBed.createComponent(SynthViewComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

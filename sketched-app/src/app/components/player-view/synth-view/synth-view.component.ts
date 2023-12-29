@@ -3,13 +3,16 @@ import * as Tone from 'tone';
 
 import { SynthSetup, ToneService } from 'src/app/services/tone.service';
 import { NonCustomOscillatorType } from 'tone/build/esm/source/oscillator/OscillatorInterface';
+import { CommonModule } from '@angular/common';
 
 @Component({
+  standalone: true,
   selector: 'app-synth-view',
   templateUrl: './synth-view.component.html',
   styleUrls: ['./synth-view.component.scss'],
+  imports: [CommonModule],
 })
-export class OscillatorViewComponent implements OnInit {
+export class SynthViewComponent implements OnInit {
   oscillatorTypes: NonCustomOscillatorType[] = ['sine', 'sawtooth', 'square', 'triangle'];
   synthSetups: SynthSetup[] = [];
   synths: Tone.PolySynth[] = [];
