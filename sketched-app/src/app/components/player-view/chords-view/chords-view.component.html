@@ -1,6 +1,6 @@
 <div class="chords-view">
   <div class="d-flex flex-column overflow-auto" *ngIf="allChords$ | async">
-    <div class="container" *ngFor="let item of allChords$ | async | keyvalue : keepOriginalOrder">
+    <div *ngFor="let item of allChords$ | async | keyvalue : keepOriginalOrder">
       <div class="row">
         <div class="col-lg-1 d-flex align-items-center">{{ item.key | chordtype }}</div>
         <div class="col-lg-11 col-12 d-flex">

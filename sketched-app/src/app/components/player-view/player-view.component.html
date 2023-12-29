@@ -1,28 +1,15 @@
 <div class="player-view container">
-  <div class="selector row">
-    <div class="col-4 offset-4">
-      <app-root-note-selector></app-root-note-selector>
-      <app-scale-mode-selector></app-scale-mode-selector>
-    </div>
+  <div class="row">
+    <app-root-note-selector></app-root-note-selector>
+    <app-scale-mode-selector></app-scale-mode-selector>
   </div>
-
-  <app-chords-view></app-chords-view>
-
-  <div class="d-flex overflow-auto">
-    <div class="card" *ngFor="let note of scaleNotes$ | async" (click)="playNote(note)">
-      <div>{{ note | note }}</div>
-    </div>
+  <div class="row">
+    <app-chords-view></app-chords-view>
   </div>
-  <div class="d-flex overflow-auto">
-    <div class="card" *ngFor="let note of notes" (click)="playNote(note)">
-      <div class="d-flex flex-row justify-content-center fs-5">
-        <div class="note-name">{{ note | note : note.octave }}</div>
-      </div>
-      <div class="d-flex flex-row justify-content-center fs-6">
-        <div class="note-position">{{ note.position }}</div>
-      </div>
-    </div>
+  <div class="row">
+    <app-notes-player-view></app-notes-player-view>
   </div>
-
-  <app-synth-view></app-synth-view>
+  <div class="row">
+    <app-synth-view></app-synth-view>
+  </div>
 </div>

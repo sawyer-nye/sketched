@@ -1,19 +1,5 @@
 .player-view {
-  .selector {
-    margin-bottom: 16px;
-  }
-
-  .card {
-    min-width: 60px;
-
-    .note-name {
-      // border: 1px solid green;
-    }
-    .note-octave {
-      // border: 1px solid blue;
-    }
-    .note-position {
-      // border: 1px solid red;
-    }
+  .row {
+    margin-bottom: 1rem;
   }
 }
