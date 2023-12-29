@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MusicService } from '@services/music/music.service';
 import { ToneService } from '@services/tone/tone.service';
 import { RootNoteSelectorComponent } from '@components/shared/root-note-selector/root-note-selector.component';
 import { ScaleModeSelectorComponent } from '@components/shared/scale-mode-selector/scale-mode-selector.component';
 import { MetronomeClickType, TimeService } from '@app/services/time/time.service';
-import { Observable, combineLatest, tap } from 'rxjs';
+import { Observable, Subscription, tap } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -13,7 +13,9 @@ import { FormsModule } from '@angular/forms';
   imports: [CommonModule, RootNoteSelectorComponent, ScaleModeSelectorComponent, FormsModule],
   templateUrl: './sketch-view.component.html',
 })
-export class SketchViewComponent implements OnInit {
+export class SketchViewComponent implements OnInit, OnDestroy {
+  private readonly subscriptions: Subscription[] = [];
+
   isPlaying$: Observable<boolean> = this.timeService.isPlaying$;
   bpm$: Observable<number> = this.timeService.bpm$;
   numBeatsPerBar$: Observable<number> = this.timeService.numBeatsPerBar$;
@@ -27,7 +29,13 @@ export class SketchViewComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.metronomeClick$.pipe(tap((clickType) => this.toneService.playMetronomeClick(clickType))).subscribe();
+    this.subscriptions.push(
+      this.metronomeClick$.pipe(tap((clickType) => this.toneService.playMetronomeClick(clickType))).subscribe()
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
 
   toggleIsPlaying(): void {

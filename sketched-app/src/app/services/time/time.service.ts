@@ -31,31 +31,17 @@ export class TimeService {
 
   readonly counter$: Observable<number> = combineLatest([this._isPlaying, this._bpm]).pipe(
     switchMap(([isPlaying, bpm]) => (isPlaying ? timer(0, 1000 * (60 / bpm)) : NEVER)),
-    switchMap((counterVal) => (counterVal === 0 ? NEVER : of(counterVal))),
-    tap((val) => {
-      console.log('counter', val);
-    })
+    switchMap((counterVal) => (counterVal === 0 ? NEVER : of(counterVal)))
   );
 
   readonly counterTick$: Observable<number> = this.counter$.pipe(
     withLatestFrom(this.numBeatsPerBar$, this.noteDurationPerBeat$),
-    map(([counter, numBeatsPerBar, _]) => {
-      if (counter === 0) {
-        // problematic
-        return NEVER;
-      }
-      return counter % numBeatsPerBar === 0 ? numBeatsPerBar : counter % numBeatsPerBar;
-    }),
-    tap(console.log)
+    map(([counter, numBeatsPerBar, _]) => (counter % numBeatsPerBar === 0 ? numBeatsPerBar : counter % numBeatsPerBar))
   );
 
   readonly metronomeClick$: Observable<MetronomeClickType> = this.counterTick$.pipe(
     map((counterTick) => (counterTick === 1 ? MetronomeClickType.TIP : MetronomeClickType.TAP))
   );
-
-  constructor() {
-    this.metronomeClick$.subscribe(console.log);
-  }
 
   get isPlaying(): boolean {
     return this._isPlaying.getValue();
