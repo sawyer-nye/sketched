@@ -3,6 +3,7 @@ import * as Tone from 'tone';
 import { NonCustomOscillatorType } from 'tone/build/esm/source/oscillator/OscillatorInterface';
 
 import { Note } from '@models/note.model';
+import { MetronomeClickType } from '@app/services/time/time.service';
 
 export interface SynthSetup {
   id: number;
@@ -14,6 +15,11 @@ export interface SynthSetup {
   providedIn: 'root',
 })
 export class ToneService {
+  private readonly metronomePlayers: Record<MetronomeClickType, Tone.Player> = {
+    [MetronomeClickType.TIP]: new Tone.Player('/assets/audio/metronome_tip.wav').toDestination(),
+    [MetronomeClickType.TAP]: new Tone.Player('/assets/audio/metronome_tap.wav').toDestination(),
+  };
+
   private polySynths: Tone.PolySynth[] = [
     new Tone.PolySynth(Tone.Synth).toDestination(),
     new Tone.PolySynth(Tone.Synth).toDestination(),
@@ -57,6 +63,12 @@ export class ToneService {
   }
 
   setOscillatorOctave(synth: Tone.MonoSynth, octave: string) {}
+
+  playMetronomeClick(clickType: MetronomeClickType): void {
+    const metronomePlayer =
+      clickType === MetronomeClickType.TIP ? this.metronomePlayers.TIP : this.metronomePlayers.TAP;
+    metronomePlayer.start();
+  }
 
   playMonoSynth(synth: Tone.MonoSynth) {
     const now = Tone.now();

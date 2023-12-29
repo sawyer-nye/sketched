@@ -1,4 +1,38 @@
 <div class="sketch-view container">
-  <app-root-note-selector></app-root-note-selector>
-  <app-scale-mode-selector></app-scale-mode-selector>
+  <div class="row">
+    <app-root-note-selector></app-root-note-selector>
+    <app-scale-mode-selector></app-scale-mode-selector>
+  </div>
+  <div class="row">
+    <div class="col">
+      <div class="d-flex flex-row">
+        <label for="bpm">BPM</label>
+        <input type="number" name="bpm" id="bpm" step="1" [value]="bpm$ | async" (change)="setBpm($event)" />
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div>Time Signature</div>
+    <input type="number" name="numBeatsPerBar" id="numBeatsPerBar" [value]="numBeatsPerBar$ | async" (change)="setNumBeatsPerBar($event)" />
+    <input
+      type="number"
+      name="noteDurationPerBeat"
+      id="noteDurationPerBeat"
+      [value]="noteDurationPerBeat$ | async"
+      (change)="setNoteDurationPerBeat($event)"
+    />
+  </div>
+  <div class="row">
+    <div class="col">
+      <ng-container *ngIf="isPlaying$ | async; else pauseIcon">
+        <button class="material-icons" (click)="toggleIsPlaying()">pause_circle</button>
+      </ng-container>
+      <ng-template #pauseIcon>
+        <button class="material-icons" (click)="toggleIsPlaying()">play_circle</button>
+      </ng-template>
+    </div>
+  </div>
+  <div class="row">
+    {{ metronomeClick$ | async }}
+  </div>
 </div>
