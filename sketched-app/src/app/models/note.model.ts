@@ -1,4 +1,4 @@
-import { NoteName } from '@app/enums/note-name.enum';
+import { NoteName } from '@enums/note-name.enum';
 
 export interface Note {
   position: number;

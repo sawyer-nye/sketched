@@ -18,7 +18,12 @@
     "importHelpers": true,
     "target": "ES2022",
     "paths": {
-      "@app/*": ["src/app/*"]
+      "@app/*": ["src/app/*"],
+      "@components/*": ["src/app/components/*"],
+      "@services/*": ["src/app/services/*"],
+      "@enums/*": ["src/app/enums/*"],
+      "@models/*": ["src/app/models/*"],
+      "@pipes/*": ["src/app/pipes/*"]
     },
     "module": "ES2022",
     "useDefineForClassFields": false,

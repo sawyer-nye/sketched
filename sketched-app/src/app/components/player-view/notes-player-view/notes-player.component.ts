@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Note } from '@app/models/note.model';
-import { NotePipe } from '@app/pipes/note-pipe';
-import { MusicService } from '@app/services/music/music.service';
-import { notes } from '@app/services/sound.data';
-import { ToneService } from '@app/services/tone/tone.service';
+import { Note } from '@models/note.model';
+import { NotePipe } from '@pipes/note-pipe';
+import { MusicService } from '@services/music/music.service';
+import { notes } from '@services/sound.data';
+import { ToneService } from '@services/tone/tone.service';
 
 @Component({
   standalone: true,

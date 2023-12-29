@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import * as Tone from 'tone';
 import { NonCustomOscillatorType } from 'tone/build/esm/source/oscillator/OscillatorInterface';
 
-import { Note } from '@app/models/note.model';
+import { Note } from '@models/note.model';
 
 export interface SynthSetup {
   id: number;
@@ -43,8 +43,6 @@ export class ToneService {
       }).toDestination(),
     },
   ];
-
-  constructor() {}
 
   getPolySynths(): Tone.PolySynth[] {
     return this.polySynths;

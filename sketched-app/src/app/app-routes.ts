@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
-import { PlayerViewComponent } from '@app/components/player-view/player-view.component';
-import { PianoRollViewComponent } from '@app/components/piano-roll/piano-roll-view.component';
-import { SketchViewComponent } from '@app/components/sketch/sketch-view.component';
+import { PlayerViewComponent } from '@components/player-view/player-view.component';
+import { PianoRollViewComponent } from '@components/piano-roll/piano-roll-view.component';
+import { SketchViewComponent } from '@components/sketch/sketch-view.component';
 
 export const routes: Routes = [
   { path: '', component: PlayerViewComponent },

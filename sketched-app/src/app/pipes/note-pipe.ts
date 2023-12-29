@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { NoteName } from '@app/enums/note-name.enum';
-import { Note } from '@app/models/note.model';
+import { NoteName } from '@enums/note-name.enum';
+import { Note } from '@models/note.model';
 
 @Pipe({ standalone: true, name: 'note' })
 export class NotePipe implements PipeTransform {

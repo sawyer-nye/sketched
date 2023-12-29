@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, combineLatest, map } from 'rxjs';
-import { Chord } from '@app/enums/chord-enum';
-import { Mode } from '@app/enums/mode-enum';
-import { NoteName } from '@app/enums/note-name.enum';
-import { Step } from '@app/enums/step.enum';
-import { Note } from '@app/models/note.model';
-import { notes } from '@app/services/sound.data';
-import { ChordType } from '@app/enums/chord-type.enum';
+import { Chord } from '@enums/chord-enum';
+import { Mode } from '@enums/mode-enum';
+import { NoteName } from '@enums/note-name.enum';
+import { Step } from '@enums/step.enum';
+import { Note } from '@models/note.model';
+import { notes } from '@services/sound.data';
+import { ChordType } from '@enums/chord-type.enum';
 import { chordPatternsMap, chordStepMap, modesMap } from './music.data';
 
 @Injectable({
