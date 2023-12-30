@@ -16,11 +16,14 @@ import { FormsModule } from '@angular/forms';
 export class SketchViewComponent implements OnInit, OnDestroy {
   private readonly subscriptions: Subscription[] = [];
 
+  isMetronomeOn$: Observable<boolean> = this.timeService.isMetronomeOn$;
   isPlaying$: Observable<boolean> = this.timeService.isPlaying$;
   bpm$: Observable<number> = this.timeService.bpm$;
   numBeatsPerBar$: Observable<number> = this.timeService.numBeatsPerBar$;
   noteDurationPerBeat$: Observable<number> = this.timeService.noteDurationPerBeat$;
+  counterTick$: Observable<number> = this.timeService.counterTick$;
   metronomeClick$: Observable<MetronomeClickType> = this.timeService.metronomeClick$;
+  loopDuration$: Observable<number> = this.timeService.loopDuration$;
 
   constructor(
     private readonly musicService: MusicService,
@@ -36,6 +39,10 @@ export class SketchViewComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.forEach((sub) => sub.unsubscribe());
+  }
+
+  toggleIsMetronomeOn(): void {
+    this.timeService.toggleIsMetronomeOn();
   }
 
   toggleIsPlaying(): void {
@@ -57,6 +64,12 @@ export class SketchViewComponent implements OnInit, OnDestroy {
   setNoteDurationPerBeat($event: Event): void {
     if (($event.target as HTMLInputElement).value) {
       this.timeService.setNoteDurationPerBeat(Number(($event.target as HTMLInputElement).value));
+    }
+  }
+
+  setLoopDuration($event: Event): void {
+    if (($event.target as HTMLInputElement).value) {
+      this.timeService.setLoopDuration(Number(($event.target as HTMLInputElement).value));
     }
   }
 }

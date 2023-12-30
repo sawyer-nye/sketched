@@ -23,6 +23,21 @@
     />
   </div>
   <div class="row">
+    <div>Loop Duration</div>
+    <input type="number" name="loopDuration" id="loopDuration" [value]="loopDuration$ | async" (change)="setLoopDuration($event)" />
+  </div>
+  <div class="row">
+    <div class="col">
+      <div>Metronome</div>
+      <ng-container *ngIf="isMetronomeOn$ | async; else offState">
+        <button class="material-icons" (click)="toggleIsMetronomeOn()">toggle_on</button>
+      </ng-container>
+      <ng-template #offState>
+        <button class="material-icons" (click)="toggleIsMetronomeOn()">toggle_off</button>
+      </ng-template>
+    </div>
+  </div>
+  <div class="row">
     <div class="col">
       <ng-container *ngIf="isPlaying$ | async; else pauseIcon">
         <button class="material-icons" (click)="toggleIsPlaying()">pause_circle</button>
@@ -34,5 +49,15 @@
   </div>
   <div class="row">
     {{ metronomeClick$ | async }}
+  </div>
+  <div class="row" *ngIf="numBeatsPerBar$ | async as numBeatsPerBar">
+    <div class="col-12 d-flex justify-content-between">
+      <div *ngFor="let num of [].constructor(numBeatsPerBar * ((loopDuration$ | async) ?? 1)); let i = index">
+        <span [class.text-bg-secondary]="(i + 1) % numBeatsPerBar === 1" [class.text-bg-warning]="(counterTick$ | async) === i + 1">
+          {{ i + 1 }}
+        </span>
+      </div>
+    </div>
+    <div class="col-12 d-flex justify-content-between"></div>
   </div>
 </div>
