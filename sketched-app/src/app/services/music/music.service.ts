@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, combineLatest, map } from 'rxjs';
-import { Chord } from '@enums/chord-enum';
-import { Mode } from '@enums/mode-enum';
+import { Chord } from '@app/enums/chord.enum';
+import { Mode } from '@app/enums/mode.enum';
 import { NoteName } from '@enums/note-name.enum';
 import { Step } from '@enums/step.enum';
 import { Note } from '@models/note.model';

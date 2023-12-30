@@ -1,6 +1,6 @@
-import { Chord } from '@enums/chord-enum';
+import { Chord } from '@app/enums/chord.enum';
 import { ChordType } from '@enums/chord-type.enum';
-import { Mode } from '@enums/mode-enum';
+import { Mode } from '@app/enums/mode.enum';
 
 export const modesMap: Record<Mode, number[]> = {
   [Mode.IONIAN]: [0, 2, 4, 5, 7, 9, 11],

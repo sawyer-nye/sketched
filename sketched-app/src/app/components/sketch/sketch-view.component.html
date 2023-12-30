@@ -51,13 +51,15 @@
     {{ metronomeClick$ | async }}
   </div>
   <div class="row" *ngIf="numBeatsPerBar$ | async as numBeatsPerBar">
-    <div class="col-12 d-flex justify-content-between">
-      <div *ngFor="let num of [].constructor(numBeatsPerBar * ((loopDuration$ | async) ?? 1)); let i = index">
-        <span [class.text-bg-secondary]="(i + 1) % numBeatsPerBar === 1" [class.text-bg-warning]="(counterTick$ | async) === i + 1">
-          {{ i + 1 }}
+    <div class="col-12 d-flex">
+      <button
+        *ngFor="let num of [].constructor(numBeatsPerBar * ((loopDuration$ | async) ?? 1)); let i = index"
+        class="card p-1 m-1 square d-flex flex-column justify-content-center align-items-center"
+      >
+        <span [class.text-bg-secondary]="(i + 1) % numBeatsPerBar === 1" [class.text-bg-warning]="(beatTick$ | async) === i + 1">
+          {{ (i % numBeatsPerBar) + 1 }}
         </span>
-      </div>
+      </button>
     </div>
-    <div class="col-12 d-flex justify-content-between"></div>
   </div>
 </div>

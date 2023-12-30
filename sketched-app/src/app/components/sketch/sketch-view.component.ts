@@ -5,13 +5,14 @@ import { ToneService } from '@services/tone/tone.service';
 import { RootNoteSelectorComponent } from '@components/shared/root-note-selector/root-note-selector.component';
 import { ScaleModeSelectorComponent } from '@components/shared/scale-mode-selector/scale-mode-selector.component';
 import { MetronomeClickType, TimeService } from '@app/services/time/time.service';
-import { Observable, Subscription, tap } from 'rxjs';
+import { NEVER, Observable, Subscription, map, tap } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   standalone: true,
   imports: [CommonModule, RootNoteSelectorComponent, ScaleModeSelectorComponent, FormsModule],
   templateUrl: './sketch-view.component.html',
+  styleUrls: ['./sketch-view.component.scss'],
 })
 export class SketchViewComponent implements OnInit, OnDestroy {
   private readonly subscriptions: Subscription[] = [];
@@ -20,8 +21,8 @@ export class SketchViewComponent implements OnInit, OnDestroy {
   isPlaying$: Observable<boolean> = this.timeService.isPlaying$;
   bpm$: Observable<number> = this.timeService.bpm$;
   numBeatsPerBar$: Observable<number> = this.timeService.numBeatsPerBar$;
-  noteDurationPerBeat$: Observable<number> = this.timeService.noteDurationPerBeat$;
-  counterTick$: Observable<number> = this.timeService.counterTick$;
+  noteDurationPerBeat$: Observable<number> = this.timeService.beatValue$;
+  beatTick$: Observable<number> = this.timeService.beatTick$;
   metronomeClick$: Observable<MetronomeClickType> = this.timeService.metronomeClick$;
   loopDuration$: Observable<number> = this.timeService.loopDuration$;
 
@@ -33,7 +34,21 @@ export class SketchViewComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.subscriptions.push(
-      this.metronomeClick$.pipe(tap((clickType) => this.toneService.playMetronomeClick(clickType))).subscribe()
+      this.metronomeClick$.pipe(tap((clickType) => this.toneService.playMetronomeClick(clickType))).subscribe(),
+      this.timeService.halfTick$
+        .pipe(
+          map((tick) => tick === 1),
+          tap((shouldPlay) => (shouldPlay ? this.toneService.playMetronomeClick(MetronomeClickType.HALF_TIP) : NEVER))
+        )
+        .subscribe(),
+      this.timeService.quarterTick$
+        .pipe(
+          map((tick) => tick === 1 || tick === 3),
+          tap((shouldPlay) =>
+            shouldPlay ? this.toneService.playMetronomeClick(MetronomeClickType.QUARTER_TIP) : NEVER
+          )
+        )
+        .subscribe()
     );
   }
 

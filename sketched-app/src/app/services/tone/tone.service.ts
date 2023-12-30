@@ -18,6 +18,8 @@ export class ToneService {
   private readonly metronomePlayers: Record<MetronomeClickType, Tone.Player> = {
     [MetronomeClickType.TIP]: new Tone.Player('/assets/audio/metronome_tip.wav').toDestination(),
     [MetronomeClickType.TAP]: new Tone.Player('/assets/audio/metronome_tap.wav').toDestination(),
+    [MetronomeClickType.HALF_TIP]: new Tone.Player('/assets/audio/metronome_half_tip.wav').toDestination(),
+    [MetronomeClickType.QUARTER_TIP]: new Tone.Player('/assets/audio/metronome_quarter_tip.wav').toDestination(),
   };
 
   private polySynths: Tone.PolySynth[] = [
@@ -65,9 +67,7 @@ export class ToneService {
   setOscillatorOctave(synth: Tone.MonoSynth, octave: string) {}
 
   playMetronomeClick(clickType: MetronomeClickType): void {
-    const metronomePlayer =
-      clickType === MetronomeClickType.TIP ? this.metronomePlayers.TIP : this.metronomePlayers.TAP;
-    metronomePlayer.start();
+    this.metronomePlayers[clickType].start();
   }
 
   playMonoSynth(synth: Tone.MonoSynth) {
