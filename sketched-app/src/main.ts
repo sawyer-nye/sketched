@@ -4,11 +4,13 @@ import { bootstrapApplication } from '@angular/platform-browser';
 import { AppComponent } from './app/app.component';
 import { provideRouter } from '@angular/router';
 import { routes } from './app/app-routes';
+import { APP_BASE_HREF } from '@angular/common';
+import { environment } from 'src/environments/environment';
 
 // platformBrowserDynamic()
 //   .bootstrapModule(AppModule)
 //   .catch((err) => console.error(err));
 
 bootstrapApplication(AppComponent, {
-  providers: [provideRouter([...routes])],
+  providers: [provideRouter([...routes]), { provide: APP_BASE_HREF, useValue: environment.baseHref }],
 });
