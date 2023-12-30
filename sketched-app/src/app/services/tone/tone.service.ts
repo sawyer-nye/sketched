@@ -16,10 +16,10 @@ export interface SynthSetup {
 })
 export class ToneService {
   private readonly metronomePlayers: Record<MetronomeClickType, Tone.Player> = {
-    [MetronomeClickType.TIP]: new Tone.Player('/assets/audio/metronome_tip.wav').toDestination(),
-    [MetronomeClickType.TAP]: new Tone.Player('/assets/audio/metronome_tap.wav').toDestination(),
-    [MetronomeClickType.HALF_TIP]: new Tone.Player('/assets/audio/metronome_half_tip.wav').toDestination(),
-    [MetronomeClickType.QUARTER_TIP]: new Tone.Player('/assets/audio/metronome_quarter_tip.wav').toDestination(),
+    [MetronomeClickType.TIP]: new Tone.Player('assets/audio/metronome_tip.wav').toDestination(),
+    [MetronomeClickType.TAP]: new Tone.Player('assets/audio/metronome_tap.wav').toDestination(),
+    [MetronomeClickType.HALF_TIP]: new Tone.Player('assets/audio/metronome_half_tip.wav').toDestination(),
+    [MetronomeClickType.QUARTER_TIP]: new Tone.Player('assets/audio/metronome_quarter_tip.wav').toDestination(),
   };
 
   private polySynths: Tone.PolySynth[] = [
