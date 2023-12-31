@@ -22,6 +22,10 @@ export class ToneService {
     [MetronomeClickType.QUARTER_TIP]: new Tone.Player('./assets/audio/metronome_quarter_tip.wav').toDestination(),
   };
 
+  private readonly samples: Record<string, Tone.Player> = {
+    snare: new Tone.Player('./assets/audio/clap_basic.wav').toDestination(),
+  };
+
   private polySynths: Tone.PolySynth[] = [
     new Tone.PolySynth(Tone.Synth).toDestination(),
     new Tone.PolySynth(Tone.Synth).toDestination(),
@@ -68,6 +72,10 @@ export class ToneService {
 
   playMetronomeClick(clickType: MetronomeClickType): void {
     this.metronomePlayers[clickType].start();
+  }
+
+  playSample(instrument: string): void {
+    this.samples[instrument].start();
   }
 
   playMonoSynth(synth: Tone.MonoSynth) {
