@@ -71,27 +71,46 @@ export class TimeService {
       const baseDivisionFactor = timeDivisionByBeatValue.get(beatValue)!;
 
       return isPlaying ? this.buildTimer(bpm, getLowerTimeDivision(baseDivisionFactor)) : NEVER;
-    }),
+    })
     // switchMap(this.discardFirstTick),
-    tap((val) => console.log('half tick: ', val))
+    // tap((val) => console.log('half tick: ', val))
   );
 
   readonly quarterTick$: Observable<number> = combineLatest([
+    this.beatTick$,
     this.isPlaying$,
-    this.beatCounter$,
     this.bpm$,
     this.beatValue$,
   ]).pipe(
-    switchMap(([isPlaying, _, bpm, beatValue]) => {
+    // withLatestFrom(this.bpm$, this.beatValue$),
+    switchMap(([_, isPlaying, bpm, beatValue]) => {
       const baseDivisionFactor = timeDivisionByBeatValue.get(beatValue)!;
       const halfTimeDivision = getLowerTimeDivision(baseDivisionFactor);
       const quarterTimeDivision = getLowerTimeDivision(halfTimeDivision);
 
       return isPlaying ? this.buildTimer(bpm, quarterTimeDivision) : NEVER;
     }),
+    map((val) => val + 1),
     // switchMap(this.discardFirstTick),
     tap((val) => console.log('quarter tick: ', val))
   );
+
+  // combineLatest([
+  //   this.isPlaying$,
+  //   // this.beatCounter$,
+  //   this.bpm$,
+  //   this.beatValue$,
+  // ]).pipe(
+  //   switchMap(([isPlaying, bpm, beatValue]) => {
+  //     const baseDivisionFactor = timeDivisionByBeatValue.get(beatValue)!;
+  //     const halfTimeDivision = getLowerTimeDivision(baseDivisionFactor);
+  //     const quarterTimeDivision = getLowerTimeDivision(halfTimeDivision);
+
+  //     return isPlaying ? this.buildTimer(bpm, quarterTimeDivision) : NEVER;
+  //   }),
+  //   // switchMap(this.discardFirstTick),
+  //   tap((val) => console.log('quarter tick: ', val))
+  // );
 
   readonly metronomeClick$: Observable<MetronomeClickType> = this.beatTick$.pipe(
     withLatestFrom(this.numBeatsPerBar$, this.isMetronomeOn$),
@@ -152,7 +171,6 @@ export class TimeService {
     this._loopDuration.next(durationInMeasures);
   }
 
-  // doesn't match up with ableton...
   private buildTimer(bpm: number, timeDivision: TimeDivision = TimeDivision.QUARTER): Observable<number> {
     const baseValue = 1000 * (60 / bpm);
     const divisionFactor = timeDivisionMap[timeDivision];

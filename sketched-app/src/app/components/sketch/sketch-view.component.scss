@@ -1,4 +1,12 @@
 .card {
   width: 60px;
+  height: 60px;
   flex-shrink: 0;
+  &.pad-card {
+    width: 6px;
+  }
+}
+
+.hidden {
+  visibility: hidden;
 }
