@@ -1,19 +1,23 @@
 <div class="notes-player-view">
   <div class="d-flex overflow-auto">
-    <div class="card" *ngFor="let note of scaleNotes$ | async" (click)="playNote(note)">
-      <div class="d-flex flex-row justify-content-center">
-        <div>{{ note | note }}</div>
+    @for (note of scaleNotes$ | async; track note) {
+      <div class="card" (click)="playNote(note)">
+        <div class="d-flex flex-row justify-content-center">
+          <div>{{ note | note }}</div>
+        </div>
       </div>
-    </div>
+    }
   </div>
   <div class="d-flex overflow-auto">
-    <div class="card" *ngFor="let note of notes" (click)="playNote(note)">
-      <div class="d-flex flex-row justify-content-center fs-5">
-        <div class="note-name">{{ note | note : note.octave }}</div>
+    @for (note of notes; track note) {
+      <div class="card" (click)="playNote(note)">
+        <div class="d-flex flex-row justify-content-center fs-5">
+          <div class="note-name">{{ note | note : note.octave }}</div>
+        </div>
+        <div class="d-flex flex-row justify-content-center fs-6">
+          <div class="note-position">{{ note.position }}</div>
+        </div>
       </div>
-      <div class="d-flex flex-row justify-content-center fs-6">
-        <div class="note-position">{{ note.position }}</div>
-      </div>
-    </div>
+    }
   </div>
 </div>

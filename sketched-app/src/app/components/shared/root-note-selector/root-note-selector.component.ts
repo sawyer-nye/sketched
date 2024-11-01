@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NoteName } from '@enums/note-name.enum';
@@ -10,7 +10,7 @@ import { notes } from '@services/sound.data';
 @Component({
   standalone: true,
   selector: 'app-root-note-selector',
-  imports: [CommonModule, NotePipe, FormsModule],
+  imports: [NotePipe, FormsModule],
   templateUrl: './root-note-selector.component.html',
   styleUrls: ['./root-note-selector.component.scss'],
 })

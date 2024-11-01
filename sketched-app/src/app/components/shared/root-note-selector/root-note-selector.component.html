@@ -1,5 +1,7 @@
 <select name="selectRootNote" [(ngModel)]="rootNoteName" (change)="updateRootNote()">
-  <option *ngFor="let note of octaveThreeNotes" [value]="note.name">
-    {{ note | note }}
-  </option>
+  @for (note of octaveThreeNotes; track note) {
+    <option [value]="note.name">
+      {{ note | note }}
+    </option>
+  }
 </select>

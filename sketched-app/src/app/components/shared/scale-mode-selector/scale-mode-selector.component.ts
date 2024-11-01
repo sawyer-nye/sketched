@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Mode } from '@app/enums/mode.enum';
@@ -8,7 +8,7 @@ import { MusicService } from '@services/music/music.service';
   standalone: true,
   selector: 'app-scale-mode-selector',
   templateUrl: './scale-mode-selector.component.html',
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
 })
 export class ScaleModeSelectorComponent {
   scaleMode: Mode = this.musicService.currentScaleMode;
