@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { TimeService } from '@app/services/time/time.service';
-import { BehaviorSubject, NEVER, Observable, ReplaySubject, Subscription, map, of, switchMap } from 'rxjs';
+import { NEVER, Observable, ReplaySubject, Subscription, map, of, switchMap } from 'rxjs';
 
 export enum TickType {
   WHOLE = 'WHOLE',
@@ -45,7 +45,7 @@ export class SequencerService {
 
   constructor(private readonly timeService: TimeService) {}
 
-  registerHit(onTick: number, forInstrument: string, forTickType: TickType = TickType.QUARTER): void {
+  registerHit(onTick: number, forInstrument: string, _forTickType: TickType = TickType.QUARTER): void {
     // const stream = this.ticks[forTickType];
     const stream = this.timeService.beatTick$;
     const newObservable = this.buildHitStream(onTick, stream);
@@ -58,7 +58,7 @@ export class SequencerService {
     });
   }
 
-  deregisterHit(onTick: number, forInstrument: string, forTickType: TickType = TickType.QUARTER): void {
+  deregisterHit(onTick: number, forInstrument: string, _forTickType: TickType = TickType.QUARTER): void {
     this._observableEmitter.next({
       instrument: forInstrument,
       onTick: onTick,

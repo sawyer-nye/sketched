@@ -28,7 +28,7 @@ export class ChordsViewComponent {
     this.toneService.playNotes(notes);
   }
 
-  keepOriginalOrder(a: KeyValue<string, Note[][]>, b: KeyValue<string, Note[][]>): number {
+  keepOriginalOrder(_a: KeyValue<string, Note[][]>, _b: KeyValue<string, Note[][]>): number {
     return 0;
   }
 }

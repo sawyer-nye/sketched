@@ -1,8 +1,8 @@
 import { Note } from '@models/note.model';
 import { NoteName } from '@enums/note-name.enum';
 
-const semitoneRatio = 1.05946309436;
-const tuningFrequency = 440.0;
+// const semitoneRatio = 1.05946309436;
+// const tuningFrequency = 440.0;
 
 const getNextOctave = (note: Note): Note => ({
   position: note.position + 12,

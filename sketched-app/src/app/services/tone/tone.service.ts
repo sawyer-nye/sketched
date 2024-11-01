@@ -68,7 +68,7 @@ export class ToneService {
     this.replaceSynth(synth, this.buildMonoSynth(newType));
   }
 
-  setOscillatorOctave(synth: Tone.MonoSynth, octave: string) {}
+  // setOscillatorOctave(synth: Tone.MonoSynth, octave: string) {}
 
   playMetronomeClick(clickType: MetronomeClickType): void {
     this.metronomePlayers[clickType].start();
@@ -97,7 +97,7 @@ export class ToneService {
   }
 
   private replaceSynth(synth: Tone.MonoSynth, newSynth: Tone.MonoSynth): void {
-    let synthIndex = this.getSynthSetups().findIndex((synthSetup) => synthSetup.synth == synth);
+    const synthIndex = this.getSynthSetups().findIndex((synthSetup) => synthSetup.synth == synth);
     this.synthSetups[synthIndex].synth.disconnect();
     this.synthSetups[synthIndex].synth = newSynth.toDestination();
   }
