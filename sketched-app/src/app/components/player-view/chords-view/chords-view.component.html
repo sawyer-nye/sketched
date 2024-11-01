@@ -1,25 +1,32 @@
 <div class="chords-view">
-  <div class="d-flex flex-column overflow-auto" *ngIf="allChords$ | async">
-    <div *ngFor="let item of allChords$ | async | keyvalue : keepOriginalOrder">
-      <div class="row">
-        <div class="col-lg-1 d-flex align-items-center">{{ item.key | chordtype }}</div>
-        <div class="col-lg-11 col-12 d-flex">
-          <button
-            *ngFor="let chord of item.value; let i = index"
-            (click)="playChord(chord)"
-            class="card p-1 m-1 w-100 square d-flex flex-column justify-content-center align-items-center"
-          >
-            <div class="d-flex flex-row flex-wrap justify-content-center">
-              <div class="fs-6" style="padding: 1px" *ngFor="let note of chord">
-                {{ note | note : note.octave }}
-              </div>
+  @if (allChords$ | async) {
+    <div class="d-flex flex-column overflow-auto">
+      @for (item of allChords$ | async | keyvalue : keepOriginalOrder; track item) {
+        <div>
+          <div class="row">
+            <div class="col-lg-1 d-flex align-items-center">{{ item.key | chordtype }}</div>
+            <div class="col-lg-11 col-12 d-flex">
+              @for (chord of item.value; track chord; let i = $index) {
+                <button
+                  (click)="playChord(chord)"
+                  class="card p-1 m-1 w-100 square d-flex flex-column justify-content-center align-items-center"
+                  >
+                  <div class="d-flex flex-row flex-wrap justify-content-center">
+                    @for (note of chord; track note) {
+                      <div class="fs-6" style="padding: 1px">
+                        {{ note | note : note.octave }}
+                      </div>
+                    }
+                  </div>
+                  <div class="chord-degree fs-5">
+                    {{ i | degree }}
+                  </div>
+                </button>
+              }
             </div>
-            <div class="chord-degree fs-5">
-              {{ i | degree }}
-            </div>
-          </button>
+          </div>
         </div>
-      </div>
+      }
     </div>
-  </div>
+  }
 </div>

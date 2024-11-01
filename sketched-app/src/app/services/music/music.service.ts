@@ -117,7 +117,7 @@ export class MusicService {
     const pattern = chordPatternsMap[chordType];
     const chordSteps = chordStepMap[chord];
 
-    let result = [];
+    const result = [];
     for (const rootStep of pattern) {
       const index = (rootStep + chordSteps) % 21;
       const note = notes[index];

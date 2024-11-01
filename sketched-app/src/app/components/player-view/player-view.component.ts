@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Observable } from 'rxjs';
@@ -19,15 +19,14 @@ import { NotesPlayerViewComponent } from './notes-player-view/notes-player.compo
   templateUrl: './player-view.component.html',
   styleUrls: ['./player-view.component.scss'],
   imports: [
-    CommonModule,
     FormsModule,
     NotePipe,
     ChordsViewComponent,
     SynthViewComponent,
     RootNoteSelectorComponent,
     ScaleModeSelectorComponent,
-    NotesPlayerViewComponent,
-  ],
+    NotesPlayerViewComponent
+],
 })
 export class PlayerViewComponent {
   scaleNotes$: Observable<Note[]> = this.musicService.currentScale$;

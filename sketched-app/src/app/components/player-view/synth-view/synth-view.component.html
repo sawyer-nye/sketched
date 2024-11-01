@@ -1,20 +1,23 @@
 <div class="synth-view d-flex flex-row overflow-auto">
-  <div class="card" *ngFor="let synthSetup of synthSetups">
-    <div class="card-header d-flex justify-content-between">
-      <div>Synth</div>
-      <div>{{ synthSetup.synth.oscillator.type }}</div>
+  @for (synthSetup of synthSetups; track synthSetup) {
+    <div class="card">
+      <div class="card-header d-flex justify-content-between">
+        <div>Synth</div>
+        <div>{{ synthSetup.synth.oscillator.type }}</div>
+      </div>
+      <div class="d-flex flex-column">
+        <button class="btn btn-primary m-2 align" (click)="playSynth(synthSetup.synth)">
+          <span class="material-icons">play_arrow</span>
+        </button>
+        @for (oscillatorType of oscillatorTypes; track oscillatorType) {
+          <button
+            class="btn btn-secondary m-2"
+            (click)="changeOscillatorType(synthSetup.synth, oscillatorType)"
+            >
+            {{ oscillatorType | uppercase }}
+          </button>
+        }
+      </div>
     </div>
-    <div class="d-flex flex-column">
-      <button class="btn btn-primary m-2 align" (click)="playSynth(synthSetup.synth)">
-        <span class="material-icons">play_arrow</span>
-      </button>
-      <button
-        *ngFor="let oscillatorType of oscillatorTypes"
-        class="btn btn-secondary m-2"
-        (click)="changeOscillatorType(synthSetup.synth, oscillatorType)"
-      >
-        {{ oscillatorType | uppercase }}
-      </button>
-    </div>
-  </div>
+  }
 </div>

@@ -178,7 +178,7 @@ export class TimeService {
     return timer(0, baseValue * divisionFactor);
   }
 
-  private discardFirstTick(counterVal: number, numDivisions: number = 1): Observable<number> {
+  private discardFirstTick(counterVal: number, _numDivisions: number = 1): Observable<number> {
     return counterVal === 0 ? NEVER : of(counterVal);
   }
 }

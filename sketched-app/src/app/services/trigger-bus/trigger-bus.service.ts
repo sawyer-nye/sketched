@@ -3,5 +3,5 @@ import { BehaviorSubject, NEVER } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class TriggerBusService {
-  private readonly _ = new BehaviorSubject<any>(NEVER);
+  private readonly _ = new BehaviorSubject<unknown>(NEVER);
 }
