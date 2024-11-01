@@ -42,7 +42,7 @@ export class TimeService {
       const baseDivision = timeDivisionByBeatValue.get(beatValue)!;
       return isPlaying ? this.buildTimer(bpm, baseDivision) : NEVER;
     }),
-    switchMap((tick) => this.discardFirstTick(tick))
+    switchMap((tick) => this.discardFirstTick(tick)),
   );
 
   readonly beatTick$: Observable<number> = this.beatCounter$.pipe(
@@ -58,7 +58,7 @@ export class TimeService {
       }
       return counter % numBeatsPerBar === 0 ? numBeatsPerBar : counter % numBeatsPerBar;
     }),
-    tap((val) => console.log('beat tick: ', val))
+    tap((val) => console.log('beat tick: ', val)),
   );
 
   readonly halfTick$: Observable<number> = combineLatest([
@@ -71,7 +71,7 @@ export class TimeService {
       const baseDivisionFactor = timeDivisionByBeatValue.get(beatValue)!;
 
       return isPlaying ? this.buildTimer(bpm, getLowerTimeDivision(baseDivisionFactor)) : NEVER;
-    })
+    }),
     // switchMap(this.discardFirstTick),
     // tap((val) => console.log('half tick: ', val))
   );
@@ -92,7 +92,7 @@ export class TimeService {
     }),
     map((val) => val + 1),
     // switchMap(this.discardFirstTick),
-    tap((val) => console.log('quarter tick: ', val))
+    tap((val) => console.log('quarter tick: ', val)),
   );
 
   // combineLatest([
@@ -120,7 +120,7 @@ export class TimeService {
       } else {
         return NEVER;
       }
-    })
+    }),
   );
 
   get isMetronomeOn(): boolean {

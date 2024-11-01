@@ -1,7 +1,7 @@
 <div class="chords-view">
   @if (allChords$ | async) {
     <div class="d-flex flex-column overflow-auto">
-      @for (item of allChords$ | async | keyvalue : keepOriginalOrder; track item) {
+      @for (item of allChords$ | async | keyvalue: keepOriginalOrder; track item) {
         <div>
           <div class="row">
             <div class="col-lg-1 d-flex align-items-center">{{ item.key | chordtype }}</div>
@@ -10,11 +10,11 @@
                 <button
                   (click)="playChord(chord)"
                   class="card p-1 m-1 w-100 square d-flex flex-column justify-content-center align-items-center"
-                  >
+                >
                   <div class="d-flex flex-row flex-wrap justify-content-center">
                     @for (note of chord; track note) {
                       <div class="fs-6" style="padding: 1px">
-                        {{ note | note : note.octave }}
+                        {{ note | note: note.octave }}
                       </div>
                     }
                   </div>

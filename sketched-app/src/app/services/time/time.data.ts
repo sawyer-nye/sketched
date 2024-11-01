@@ -23,7 +23,7 @@ export const getLowerTimeDivision = (timeDivision: TimeDivision): TimeDivision =
     [TimeDivision.QUARTER]: TimeDivision.EIGHTH,
     [TimeDivision.EIGHTH]: TimeDivision.SIXTEENTH,
     [TimeDivision.SIXTEENTH]: TimeDivision.SIXTEENTH,
-  }[timeDivision]);
+  })[timeDivision];
 
 export const getHigherTimeDivision = (timeDivision: TimeDivision): TimeDivision =>
   ({
@@ -32,4 +32,4 @@ export const getHigherTimeDivision = (timeDivision: TimeDivision): TimeDivision 
     [TimeDivision.QUARTER]: TimeDivision.HALF,
     [TimeDivision.EIGHTH]: TimeDivision.QUARTER,
     [TimeDivision.SIXTEENTH]: TimeDivision.EIGHTH,
-  }[timeDivision]);
+  })[timeDivision];

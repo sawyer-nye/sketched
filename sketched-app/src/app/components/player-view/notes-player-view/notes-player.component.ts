@@ -20,7 +20,10 @@ export class NotesPlayerViewComponent {
 
   notes: Note[] = notes;
 
-  constructor(private readonly musicService: MusicService, private readonly toneService: ToneService) {}
+  constructor(
+    private readonly musicService: MusicService,
+    private readonly toneService: ToneService,
+  ) {}
 
   playNote(note: Note) {
     this.toneService.playNote(note);

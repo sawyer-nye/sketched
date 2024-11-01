@@ -1,4 +1,3 @@
-
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Observable } from 'rxjs';
@@ -25,8 +24,8 @@ import { NotesPlayerViewComponent } from './notes-player-view/notes-player.compo
     SynthViewComponent,
     RootNoteSelectorComponent,
     ScaleModeSelectorComponent,
-    NotesPlayerViewComponent
-],
+    NotesPlayerViewComponent,
+  ],
 })
 export class PlayerViewComponent {
   scaleNotes$: Observable<Note[]> = this.musicService.currentScale$;
@@ -34,5 +33,8 @@ export class PlayerViewComponent {
 
   notes: Note[] = notes;
 
-  constructor(private readonly musicService: MusicService, private readonly toneService: ToneService) {}
+  constructor(
+    private readonly musicService: MusicService,
+    private readonly toneService: ToneService,
+  ) {}
 }

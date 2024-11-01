@@ -10,10 +10,7 @@
           <span class="material-icons">play_arrow</span>
         </button>
         @for (oscillatorType of oscillatorTypes; track oscillatorType) {
-          <button
-            class="btn btn-secondary m-2"
-            (click)="changeOscillatorType(synthSetup.synth, oscillatorType)"
-            >
+          <button class="btn btn-secondary m-2" (click)="changeOscillatorType(synthSetup.synth, oscillatorType)">
             {{ oscillatorType | uppercase }}
           </button>
         }

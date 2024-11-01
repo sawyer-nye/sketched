@@ -38,7 +38,7 @@ export class SketchViewComponent implements OnInit, OnDestroy {
     private readonly musicService: MusicService,
     private readonly toneService: ToneService,
     private readonly timeService: TimeService,
-    private readonly sequencerService: SequencerService
+    private readonly sequencerService: SequencerService,
   ) {}
 
   ngOnInit(): void {
@@ -46,13 +46,13 @@ export class SketchViewComponent implements OnInit, OnDestroy {
       this.metronomeClick$.pipe(tap((clickType) => this.toneService.playMetronomeClick(clickType))).subscribe(),
       this.timeService.halfTick$
         .pipe(
-          map((tick) => tick === 1)
+          map((tick) => tick === 1),
           // tap((shouldPlay) => (shouldPlay ? this.toneService.playMetronomeClick(MetronomeClickType.HALF_TIP) : NEVER))
         )
         .subscribe(),
       this.timeService.quarterTick$
         .pipe(
-          map((tick) => tick === 1 || tick === 3)
+          map((tick) => tick === 1 || tick === 3),
           // tap((shouldPlay) =>
           //   shouldPlay ? this.toneService.playMetronomeClick(MetronomeClickType.QUARTER_TIP) : NEVER
           // )
@@ -60,7 +60,7 @@ export class SketchViewComponent implements OnInit, OnDestroy {
         .subscribe(),
       this.sequencerService.observableEmitter$
         .pipe(tap((hitTarget) => this.subscribeToNewObservable(hitTarget)))
-        .subscribe()
+        .subscribe(),
     );
   }
 
@@ -126,7 +126,7 @@ export class SketchViewComponent implements OnInit, OnDestroy {
               if (tickVal % (beatsPerBar * loopDuration) === hitTarget.onTick) {
                 this.toneService.playSample(hitTarget.instrument);
               }
-            })
+            }),
           )
           .subscribe(),
       });

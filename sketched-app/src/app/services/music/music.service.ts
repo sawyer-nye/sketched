@@ -20,11 +20,11 @@ export class MusicService {
   readonly currentRootNote$: Observable<Note> = this._currentRootNote.asObservable();
 
   readonly currentScale$: Observable<Note[]> = combineLatest([this.currentRootNote$, this.currentScaleMode$]).pipe(
-    map(([currentRootNote, currentScaleMode]) => this.generateScale(currentRootNote.position, currentScaleMode))
+    map(([currentRootNote, currentScaleMode]) => this.generateScale(currentRootNote.position, currentScaleMode)),
   );
   readonly currentChords$: Observable<Note[][]> = this.currentScale$.pipe(map((scale) => this.generateChords(scale)));
   readonly allChords$: Observable<Record<ChordType, Note[][]> | null> = this.currentScale$.pipe(
-    map((scale) => this.generateAllChords(scale))
+    map((scale) => this.generateAllChords(scale)),
   );
 
   readonly octaveThreeAndFourNotes = notes.filter((note) => note.octave === 3 || note.octave === 4);

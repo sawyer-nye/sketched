@@ -69,7 +69,7 @@ export class SequencerService {
 
   private buildHitStream(
     onTick: number,
-    fromBeatStream: Observable<number> = this.timeService.quarterTick$
+    fromBeatStream: Observable<number> = this.timeService.quarterTick$,
   ): Observable<Tick> {
     return fromBeatStream.pipe(
       map((tick) => {
@@ -79,7 +79,7 @@ export class SequencerService {
         }
         return false;
       }),
-      switchMap((didHit) => (didHit ? of(Tick.HIT) : NEVER))
+      switchMap((didHit) => (didHit ? of(Tick.HIT) : NEVER)),
     );
   }
 }

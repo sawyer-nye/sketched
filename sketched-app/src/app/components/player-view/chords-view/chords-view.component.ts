@@ -22,7 +22,10 @@ export class ChordsViewComponent {
 
   ChordType = ChordType;
 
-  constructor(private readonly musicService: MusicService, private readonly toneService: ToneService) {}
+  constructor(
+    private readonly musicService: MusicService,
+    private readonly toneService: ToneService,
+  ) {}
 
   playChord(notes: Note[]): void {
     this.toneService.playNotes(notes);
