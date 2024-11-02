@@ -4,7 +4,7 @@ import { notes } from '@app/services/sound.data';
 export class MusicHelper {
   static getNoteFromMIDIPosition(position: number): Note {
     const note = notes[position];
-    if (!note) throw Error(`note note found from midi position: ${position}`);
+    if (!note) throw Error(`note not found from midi position: ${position}`);
 
     return note;
   }
