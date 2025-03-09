@@ -11,6 +11,8 @@ export interface SynthSetup {
   synth: Tone.MonoSynth;
 }
 
+export type SupportedInstrument = Tone.PolySynth | Tone.MonoSynth | Tone.Player;
+
 @Injectable({
   providedIn: 'root',
 })
@@ -68,7 +70,7 @@ export class ToneService {
     this.replaceSynth(synth, this.buildMonoSynth(newType));
   }
 
-  // setOscillatorOctave(synth: Tone.MonoSynth, octave: string) {}
+  setOscillatorOctave(_synth: Tone.MonoSynth, _octave: string) {}
 
   playMetronomeClick(clickType: MetronomeClickType): void {
     this.metronomePlayers[clickType].start();
@@ -83,10 +85,10 @@ export class ToneService {
     synth?.triggerAttackRelease('C3', '2n', now);
   }
 
-  playNote(note: Note): void {
+  playNote(note: Note, velocity?: number): void {
     const now = Tone.now();
     const synthOne = this.synthSetups[0].synth;
-    synthOne?.triggerAttackRelease(note.frequency, '4n', now);
+    synthOne?.triggerAttackRelease(note.frequency, '4n', now, velocity);
   }
 
   playNotes(notes: Note[]): void {
