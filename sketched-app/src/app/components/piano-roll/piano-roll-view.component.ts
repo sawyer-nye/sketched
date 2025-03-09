@@ -47,14 +47,19 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
   protected getNoteLeft = this.positionService.getNoteLeft;
   protected getNoteWidth = this.positionService.getNoteWidth;
 
-  // Piano roll configuration
-  private readonly cellWidth = 40; // Width of one beat in pixels
-  cellHeight = 20; // Height of one note in pixels
+  protected get cellWidth(): number {
+    return this.gridService.cellWidth;
+  }
+
+  protected get cellHeight(): number {
+    return this.gridService.cellHeight;
+  }
+
   gridBeats: number[] = [];
   gridRows: GridRow[] = [];
   visibleNotes: Note[] = [];
   totalBeats = 16; // Default length of piano roll
-  playbackPosition = 0;
+  playbackPosition$ = this.timeService.beatTick$.pipe(map((beat) => (beat - 1) * this.cellWidth));
 
   // Drawing and interaction variables
   isDrawing = false;
@@ -111,17 +116,6 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
   }
 
   setupPlaybackTracking(): void {
-    // Track the current beat for playback visualization
-    const beatTracking = this.timeService.beatTick$.pipe(
-      map((beat) => {
-        // Convert beat to pixel position
-        this.playbackPosition = (beat - 1) * this.cellWidth;
-        return beat;
-      }),
-    );
-
-    this.subscriptions.push(beatTracking.subscribe());
-
     // Subscribe to sequencer events to register/deregister hit subscriptions
     this.subscriptions.push(
       this.sequencerService.observableEmitter$.pipe(tap((hitTarget) => this.handleHitTarget(hitTarget))).subscribe(),
@@ -252,9 +246,6 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
 
       // Then clean up any sequencer registrations
       this.trackService.deregisterAllTracksFromPlayback();
-
-      // Reset playback position
-      this.playbackPosition = 0;
     }
   }
 
@@ -269,12 +260,12 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
 
   // Update startDrawing to handle selection box in selection mode
   startDrawing(event: MouseEvent): void {
+    // Only start dragging if left mouse button is pressed
+    if (event.button !== 0) return;
+
     const currentTrack = this.trackService.getCurrentTrack();
 
     if (!currentTrack) return;
-
-    // Only start dragging if left mouse button is pressed
-    if (event.button !== 0) return;
 
     const gridContainer = event.currentTarget as HTMLElement;
     const { beatIndex, noteIndex } = this.gridService.getGridCoordinates(event, gridContainer);
@@ -660,6 +651,8 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
     const beatPosition = Math.floor(note.startTime) + 1;
 
     // Remove the note from the track
+    // TODO: stop doing this via mutation
+    // and instead use the track service to delete the note
     currentTrack.notes = currentTrack.notes.filter((n) => n !== note);
 
     // Update the track

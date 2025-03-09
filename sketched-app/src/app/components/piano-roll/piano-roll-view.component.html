@@ -58,7 +58,7 @@
           </div>
 
           <!-- Playback position indicator -->
-          <div class="playback-position" [style.left.px]="playbackPosition"></div>
+          <div class="playback-position" [style.left.px]="playbackPosition$ | async"></div>
 
           <!-- Selection box for multi-select -->
           <div id="selection-box" class="selection-box"></div>

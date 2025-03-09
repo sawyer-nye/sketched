@@ -106,11 +106,11 @@ export class ToneService {
         synth = this.polySynths[0];
         synth.triggerAttackRelease(note.frequency, '4n', now, velocity);
       } else if (type === InstrumentType.MONO_SAMPLE) {
-        synth = this.samples[0];
+        synth = this.samples['snare']; //TODO: make this dynamic
         synth.start();
       } else if (type === InstrumentType.POLY_SAMPLE) {
         // TODO: Implement poly sample
-        synth = this.samples[0];
+        synth = this.samples['snare']; //TODO: make this dynamic
         synth.start();
       } else {
         throw new Error(`Unsupported instrument type: ${type}`);
