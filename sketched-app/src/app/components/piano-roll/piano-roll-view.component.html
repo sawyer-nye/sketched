@@ -107,7 +107,7 @@
           [class.selected]="selectedNotes.includes(note)"
           [class.primary-selected]="selectedNote === note"
           [class.dragging]="isDragging && selectedNotes.includes(note)"
-          [style.top.px]="getNoteTop(note)"
+          [style.top.px]="getNoteTop(note, visibleNotes)"
           [style.left.px]="getNoteLeft(note)"
           [style.width.px]="getNoteWidth(note)"
           [style.height.px]="cellHeight"
@@ -118,7 +118,7 @@
 
         <!-- Playback position indicator -->
         <div class="playback-position" [style.left.px]="playbackPosition"></div>
-        
+
         <!-- Selection box for multi-select -->
         <div id="selection-box" class="selection-box"></div>
       </div>

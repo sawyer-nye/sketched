@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
@@ -13,26 +13,11 @@ import { TrackService } from '@services/track/track.service';
 import { Note } from '@models/note.model';
 import { PianoRollNote, Track } from '@models/piano-roll-note.model';
 import { NoteName } from '@enums/note-name.enum';
-
-interface GridRow {
-  note: Note;
-  cells: Array<{ beat: number }>;
-}
-
-// Interface for tracking hit subscriptions
-interface HitSubscription {
-  trackId: string;
-  onTick: number;
-  subscription: Subscription;
-}
-
-// Interface for selection box
-interface SelectionBox {
-  startX: number;
-  startY: number;
-  width: number;
-  height: number;
-}
+import { PianoRollGridService } from '@app/services/piano-roll-grid.service';
+import { PianoRollPositionService } from '@app/services/piano-roll-position.service';
+import { PianoRollSelectionService } from '@app/services/piano-roll-selection.service';
+import { PianoRollNoteService } from '@app/services/piano-roll-note.service';
+import { GridRow, HitSubscription, SelectionBox } from '@app/components/piano-roll/piano-roll.interfaces';
 
 @Component({
   selector: 'app-piano-roll-view',
@@ -42,6 +27,15 @@ interface SelectionBox {
   styleUrls: ['./piano-roll-view.component.scss'],
 })
 export class PianoRollViewComponent implements OnInit, OnDestroy {
+  private readonly gridService = inject(PianoRollGridService);
+  private readonly positionService = inject(PianoRollPositionService);
+  private readonly selectionService = inject(PianoRollSelectionService);
+  private readonly noteService = inject(PianoRollNoteService);
+
+  protected getNoteTop = this.positionService.getNoteTop;
+  protected getNoteLeft = this.positionService.getNoteLeft;
+  protected getNoteWidth = this.positionService.getNoteWidth;
+
   // Piano roll configuration
   private readonly cellWidth = 40; // Width of one beat in pixels
   cellHeight = 20; // Height of one note in pixels
@@ -100,20 +94,10 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
   }
 
   setupGrid(): void {
-    // Setup beats (horizontal markers)
-    this.gridBeats = Array.from({ length: this.totalBeats }, (_, i) => i + 1);
-
-    // Get visible notes from music service (use octave 3 and 4 notes)
-    this.visibleNotes = this.musicService.octaveThreeAndFourNotes;
-
-    // Sort notes by position in descending order (highest notes first)
-    this.visibleNotes = [...this.visibleNotes].sort((a, b) => b.position - a.position);
-
-    // Setup grid rows based on visible notes
-    this.gridRows = this.visibleNotes.map((note) => ({
-      note,
-      cells: Array.from({ length: this.totalBeats }, (_, i) => ({ beat: i + 1 })),
-    }));
+    this.gridBeats = this.gridService.setupGridBeats(this.totalBeats);
+    const { gridRows, visibleNotes } = this.gridService.setupGridRows(this.totalBeats);
+    this.gridRows = gridRows;
+    this.visibleNotes = visibleNotes;
   }
 
   setupTrackObservables(): void {
@@ -288,13 +272,11 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
     if (event.button !== 0) return;
 
     const gridContainer = event.currentTarget as HTMLElement;
+    const { beatIndex, noteIndex } = this.gridService.getGridCoordinates(event, gridContainer);
+
     const rect = gridContainer.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top - 30; // Adjust for time indicators height
-
-    // Calculate grid position
-    const beatIndex = Math.floor(x / this.cellWidth);
-    const noteIndex = Math.floor(y / this.cellHeight);
 
     // Make sure we're in bounds
     if (noteIndex < 0 || noteIndex >= this.visibleNotes.length || beatIndex < 0 || beatIndex >= this.totalBeats) {
@@ -378,12 +360,7 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
         }
 
         this.isSelecting = true;
-        this.selectionBox = {
-          startX: x,
-          startY: y,
-          width: 0,
-          height: 0,
-        };
+        this.selectionBox = this.selectionService.createSelectionBox(x, y);
       }
     }
   }
@@ -391,131 +368,154 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
   // Updated drawNote to handle selection box and multi-select dragging
   drawNote(event: MouseEvent): void {
     if (!this.currentTrack) return;
-    
+
     const gridContainer = event.currentTarget as HTMLElement;
     const rect = gridContainer.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top - 30; // Adjust for time indicators height
 
-    // Different behavior based on mode
     if (this.isPencilMode) {
-      // In pencil mode, we only adjust the duration of the most recently created note
-      if (!this.isDrawing || !this.selectedNote) return;
-
-      // Calculate the beat position
-      const currentBeat = Math.floor(x / this.cellWidth);
-
-      // Calculate the new duration (minimum 1)
-      const startBeat = this.selectedNote.startTime;
-      const newDuration = Math.max(1, currentBeat - startBeat + 1);
-
-      // Ensure we don't go beyond the total beats
-      const maxDuration = this.totalBeats - startBeat;
-      this.selectedNote.duration = Math.min(newDuration, maxDuration);
-
-      // Update the track with the modified note
-      this.trackService.updateTrack(this.currentTrack);
+      this.handlePencilModeDrawing(x);
     } else {
-      // SELECTION MODE - Handle selection box or note dragging
       if (this.isSelecting && this.selectionBox) {
-        // Update selection box dimensions
-        this.selectionBox.width = x - this.selectionBox.startX;
-        this.selectionBox.height = y - this.selectionBox.startY;
-        
-        // Update the visual selection box in the UI
-        this.updateSelectionBoxVisual();
-        
-        // Select notes that are within the selection box
-        this.selectNotesInBox();
-      }
-      else if (this.isDragging && this.selectedNotes.length > 0) {
-        // Calculate movement in exact pixel values first - don't round to grid cells yet
-        const pixelDeltaX = x - this.dragStartPosition.x;
-        const pixelDeltaY = y - this.dragStartPosition.y;
-
-        // Only process if there's significant movement (more than 2 pixels)
-        if (Math.abs(pixelDeltaX) > 2 || Math.abs(pixelDeltaY) > 2) {
-          // Calculate grid movement based on pixel movement
-          const beatDifference = Math.round(pixelDeltaX / this.cellWidth);
-          const noteDifference = Math.round(pixelDeltaY / this.cellHeight);
-
-          // Only apply changes if there's actual grid movement
-          if (beatDifference !== 0 || noteDifference !== 0) {
-            // Apply the grid movement to each selected note
-            this.selectedNotes.forEach(note => {
-              // Store original positions for restoration if needed
-              const originalStartTime = note.startTime;
-              const originalNote = { ...note.note };
-
-              // Handle horizontal movement (changing start time)
-              if (beatDifference !== 0) {
-                const newStartTime = Math.max(0, originalStartTime + beatDifference);
-                const maxStart = this.totalBeats - note.duration;
-                note.startTime = Math.min(newStartTime, maxStart);
-              }
-
-              // Handle vertical movement (changing pitch)
-              if (noteDifference !== 0) {
-                // Find the current index of the note in visibleNotes
-                const currentNoteIndex = this.visibleNotes.findIndex(
-                  (n) => n.position === originalNote.position && n.octave === originalNote.octave,
-                );
-
-                // Calculate the new index, ensuring it stays within bounds
-                const newNoteIndex = Math.max(0, Math.min(currentNoteIndex + noteDifference, this.visibleNotes.length - 1));
-
-                // If the index changed, update the note
-                if (newNoteIndex !== currentNoteIndex) {
-                  // Update the note to the new pitch
-                  note.note = { ...this.visibleNotes[newNoteIndex] };
-
-                  // Play the new note at a lower velocity for feedback if it's the primary selected note
-                  if (note === this.selectedNote) {
-                    this.toneService.playNote(note.note, 0.3);
-                  }
-                }
-              }
-            });
-
-            // Update the track with the modified notes
-            this.trackService.updateTrack(this.currentTrack);
-
-            // Update drag start position based on the applied grid movements instead of current cursor
-            this.dragStartPosition.x += beatDifference * this.cellWidth;
-            this.dragStartPosition.y += noteDifference * this.cellHeight;
-          }
-        }
-      }
-      else if (this.isResizing && this.selectedNote) {
-        // Calculate the grid position
-        const currentBeat = Math.floor(x / this.cellWidth);
-        
-        // Calculate the new duration based on the beat difference
-        const startBeat = this.selectedNote.startTime;
-        const newDuration = Math.max(1, currentBeat - startBeat + 1);
-        
-        // Find the resize ratio to apply to all selected notes
-        const resizeRatio = newDuration / this.selectedNote.duration;
-        
-        // Update all selected notes with the same resize ratio
-        this.selectedNotes.forEach(note => {
-          if (note !== this.selectedNote) {
-            // For other notes, calculate a scaled duration
-            const scaledDuration = Math.max(1, Math.round(note.duration * resizeRatio));
-            // Ensure we don't go beyond the total beats
-            const maxDuration = this.totalBeats - note.startTime;
-            note.duration = Math.min(scaledDuration, maxDuration);
-          }
-        });
-        
-        // Update the primary selected note
-        const maxDuration = this.totalBeats - startBeat;
-        this.selectedNote.duration = Math.min(newDuration, maxDuration);
-        
-        // Update the track with all modified notes
-        this.trackService.updateTrack(this.currentTrack);
+        this.handleSelectionBoxUpdate(x, y);
+      } else if (this.isDragging && this.selectedNotes.length > 0) {
+        this.handleNoteDragging(x, y);
+      } else if (this.isResizing && this.selectedNote) {
+        this.handleNoteResizing(x);
       }
     }
+  }
+
+  private handlePencilModeDrawing(x: number): void {
+    if (!this.isDrawing || !this.selectedNote) return;
+
+    // Calculate the beat position
+    const currentBeat = this.positionService.getBeatFromX(x);
+
+    // Calculate the new duration (minimum 1)
+    const startBeat = this.selectedNote.startTime;
+    const newDuration = Math.max(1, currentBeat - startBeat + 1);
+
+    // Ensure we don't go beyond the total beats
+    const maxDuration = this.totalBeats - startBeat;
+    this.selectedNote.duration = Math.min(newDuration, maxDuration);
+
+    // Update the track with the modified note
+    this.trackService.updateTrack(this.currentTrack!);
+  }
+
+  private handleSelectionBoxUpdate(x: number, y: number): void {
+    if (!this.selectionBox) return;
+
+    // Update selection box dimensions
+    this.selectionBox = this.selectionService.updateSelectionBox(this.selectionBox, x, y);
+
+    // Update the visual selection box in the UI
+    this.updateSelectionBoxVisual();
+
+    // Select notes that are within the selection box
+    this.selectNotesInBox();
+  }
+
+  private handleNoteDragging(x: number, y: number): void {
+    // Calculate movement in exact pixel values first - don't round to grid cells yet
+    const pixelDeltaX = x - this.dragStartPosition.x;
+    const pixelDeltaY = y - this.dragStartPosition.y;
+
+    // Only process if there's significant movement (more than 2 pixels)
+    if (Math.abs(pixelDeltaX) > 2 || Math.abs(pixelDeltaY) > 2) {
+      // Calculate grid movement based on pixel movement
+      const beatDifference = this.positionService.getBeatFromX(pixelDeltaX);
+      const noteDifference = this.positionService.getNoteIndexFromY(pixelDeltaY);
+
+      // Only apply changes if there's actual grid movement
+      if (beatDifference !== 0 || noteDifference !== 0) {
+        this.moveSelectedNotes(beatDifference, noteDifference);
+
+        // Update drag start position based on the applied grid movements
+        this.dragStartPosition.x += beatDifference * this.cellWidth;
+        this.dragStartPosition.y += noteDifference * this.cellHeight;
+      }
+    }
+  }
+
+  private moveSelectedNotes(beatDifference: number, noteDifference: number): void {
+    this.selectedNotes.forEach((note) => {
+      // Store original positions for restoration if needed
+      const originalStartTime = note.startTime;
+      const originalNote = { ...note.note };
+
+      // Handle horizontal movement (changing start time)
+      if (beatDifference !== 0) {
+        const newStartTime = Math.max(0, originalStartTime + beatDifference);
+        const maxStart = this.totalBeats - note.duration;
+        note.startTime = Math.min(newStartTime, maxStart);
+      }
+
+      // Handle vertical movement (changing pitch)
+      if (noteDifference !== 0) {
+        this.updateNotePitch(note, originalNote, noteDifference);
+      }
+    });
+
+    // Update the track with the modified notes
+    this.trackService.updateTrack(this.currentTrack!);
+  }
+
+  private updateNotePitch(note: PianoRollNote, originalNote: Note, noteDifference: number): void {
+    // Find the current index of the note in visibleNotes
+    const currentNoteIndex = this.visibleNotes.findIndex(
+      (n) => n.position === originalNote.position && n.octave === originalNote.octave,
+    );
+
+    // Calculate the new index, ensuring it stays within bounds
+    const newNoteIndex = Math.max(0, Math.min(currentNoteIndex + noteDifference, this.visibleNotes.length - 1));
+
+    // If the index changed, update the note
+    if (newNoteIndex !== currentNoteIndex) {
+      // Update the note to the new pitch
+      note.note = { ...this.visibleNotes[newNoteIndex] };
+
+      // Play the new note at a lower velocity for feedback if it's the primary selected note
+      if (note === this.selectedNote) {
+        this.toneService.playNote(note.note, 0.3);
+      }
+    }
+  }
+
+  private handleNoteResizing(x: number): void {
+    // Calculate the grid position
+    const currentBeat = this.positionService.getBeatFromX(x);
+
+    // Calculate the new duration based on the beat difference
+    const startBeat = this.selectedNote!.startTime;
+    const newDuration = Math.max(1, currentBeat - startBeat + 1);
+
+    // Find the resize ratio to apply to all selected notes
+    const resizeRatio = newDuration / this.selectedNote!.duration;
+
+    // Update all selected notes with the same resize ratio
+    this.resizeSelectedNotes(newDuration, resizeRatio);
+
+    // Update the track with all modified notes
+    this.trackService.updateTrack(this.currentTrack!);
+  }
+
+  private resizeSelectedNotes(newDuration: number, resizeRatio: number): void {
+    this.selectedNotes.forEach((note) => {
+      if (note !== this.selectedNote) {
+        // For other notes, calculate a scaled duration
+        const scaledDuration = Math.max(1, Math.round(note.duration * resizeRatio));
+        // Ensure we don't go beyond the total beats
+        const maxDuration = this.totalBeats - note.startTime;
+        note.duration = Math.min(scaledDuration, maxDuration);
+      }
+    });
+
+    // Update the primary selected note
+    const maxDuration = this.totalBeats - this.selectedNote!.startTime;
+    this.selectedNote!.duration = Math.min(newDuration, maxDuration);
   }
 
   // Add method to update the selection box visual element
@@ -543,33 +543,17 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
   private selectNotesInBox(): void {
     if (!this.selectionBox || !this.currentTrack) return;
 
-    // Calculate the bounds of the selection box in grid coordinates
-    const left = Math.min(this.selectionBox.startX, this.selectionBox.startX + this.selectionBox.width);
-    const right = Math.max(this.selectionBox.startX, this.selectionBox.startX + this.selectionBox.width);
-    const top = Math.min(this.selectionBox.startY, this.selectionBox.startY + this.selectionBox.height);
-    const bottom = Math.max(this.selectionBox.startY, this.selectionBox.startY + this.selectionBox.height);
-
     // Clear previous selection if not in add mode (Ctrl key)
     if (!this.selectedNotes.length) {
       this.selectedNotes = [];
     }
 
-    // Find notes that fall within the selection box
-    this.currentTrack.notes.forEach((note) => {
-      // Get the note's position in the grid
-      const noteTop = this.getNoteTop(note);
-      const noteLeft = this.getNoteLeft(note);
-      const noteRight = noteLeft + this.getNoteWidth(note);
-      const noteBottom = noteTop + this.cellHeight;
-
-      // Check if the note overlaps with the selection box
-      if (noteLeft < right && noteRight > left && noteTop < bottom && noteBottom > top) {
-        // Add to selection if not already selected
-        if (!this.selectedNotes.includes(note)) {
-          this.selectedNotes.push(note);
-        }
-      }
-    });
+    this.selectedNotes = this.selectionService.getNotesInBox(
+      this.selectionBox,
+      this.currentTrack.notes,
+      this.cellHeight,
+      this.visibleNotes,
+    );
 
     // Update the primary selected note
     if (this.selectedNotes.length > 0) {
@@ -613,15 +597,15 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
       this.toneService.playNote(note.note, 0.5);
 
       console.log(`Selected note: ${this.getNoteLabel(note.note)} at beat ${Math.floor(note.startTime) + 1}`);
-      
+
       // Important: Initiate dragging when clicking on a note in selection mode
       this.isDragging = true;
-      
+
       // Get grid container element for accurate coordinate calculation
       let gridContainer = null;
       const noteElement = event.currentTarget as HTMLElement;
       let parentEl = noteElement.parentElement;
-      
+
       // Find the grid container by traversing up the DOM
       while (parentEl && !gridContainer) {
         if (parentEl.classList.contains('grid-container')) {
@@ -629,19 +613,19 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
         }
         parentEl = parentEl.parentElement;
       }
-      
+
       // Store the starting position for drag calculations
       if (gridContainer) {
         const rect = gridContainer.getBoundingClientRect();
         this.dragStartPosition = {
           x: event.clientX - rect.left,
-          y: event.clientY - rect.top - 30 // Adjust for time indicators height
+          y: event.clientY - rect.top - 30, // Adjust for time indicators height
         };
       } else {
         // Fallback if we can't find the grid container
         this.dragStartPosition = {
           x: event.clientX,
-          y: event.clientY
+          y: event.clientY,
         };
       }
     }
@@ -682,22 +666,6 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
     // Format as C3, C#3, etc.
     const noteName = note.name.replace('_SHARP', '#');
     return `${noteName}${note.octave}`;
-  }
-
-  getNoteTop(note: PianoRollNote): number {
-    const noteIndex = this.visibleNotes.findIndex(
-      (n) => n.position === note.note.position && n.octave === note.note.octave,
-    );
-    // With highest notes at the top, the index directly corresponds to the position
-    return noteIndex * this.cellHeight;
-  }
-
-  getNoteLeft(note: PianoRollNote): number {
-    return note.startTime * this.cellWidth;
-  }
-
-  getNoteWidth(note: PianoRollNote): number {
-    return note.duration * this.cellWidth;
   }
 
   private findNoteAt(beatIndex: number, noteIndex: number): PianoRollNote | null {
@@ -802,7 +770,7 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
       if (this.isDragging && this.selectedNote) {
         // Play audio feedback of the primary selected note
         this.toneService.playNote(this.selectedNote.note, 0.5);
-        
+
         // Check if we've actually moved any notes (in case of a simple click)
         if (this.selectedNotes.length === 1) {
           console.log(
@@ -907,10 +875,10 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
     const y = event.clientY - rect.top - 30; // Adjust for time indicators height
 
     // Calculate grid position
-    const beatIndex = Math.floor(x / this.cellWidth);
-    const noteIndex = Math.floor(y / this.cellHeight);
+    const beatIndex = this.positionService.getBeatFromX(x);
+    const noteIndex = this.positionService.getNoteIndexFromY(y);
 
-    if (noteIndex >= 0 && noteIndex < this.visibleNotes.length && beatIndex >= 0 && beatIndex < this.totalBeats) {
+    if (this.gridService.isWithinBounds(noteIndex, beatIndex, this.visibleNotes.length, this.totalBeats)) {
       // Get the note at this index in the sorted array
       const note = this.visibleNotes[noteIndex];
 
@@ -954,16 +922,16 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
 
     // Calculate the pixel difference in the horizontal direction
     const pixelDeltaX = event.clientX - this.dragStartPosition.x;
-    
+
     // Only process if there's significant movement (more than 2 pixels)
     if (Math.abs(pixelDeltaX) > 2) {
       // Convert to beat units - use Math.round for more accurate grid snapping
-      const deltaBeat = Math.round(pixelDeltaX / this.cellWidth);
-      
+      const deltaBeat = this.positionService.getBeatFromX(pixelDeltaX);
+
       if (deltaBeat !== 0) {
         // Store original duration for ratio calculation
         const originalDuration = this.selectedNote.duration;
-        
+
         // Update primary note duration
         const newDuration = Math.max(1, originalDuration + deltaBeat);
         const maxDuration = this.totalBeats - this.selectedNote.startTime;
@@ -971,13 +939,13 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
 
         // Calculate resize ratio for other selected notes
         const resizeRatio = newDuration / originalDuration;
-        
+
         // Update all other selected notes with the same resize ratio
-        this.selectedNotes.forEach(note => {
+        this.selectedNotes.forEach((note) => {
           if (note !== this.selectedNote) {
             // Store original duration
             const noteOriginalDuration = note.duration;
-            
+
             // For other notes, calculate a scaled duration
             const scaledDuration = Math.max(1, Math.round(noteOriginalDuration * resizeRatio));
             // Ensure we don't go beyond the total beats
