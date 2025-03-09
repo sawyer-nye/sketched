@@ -1,0 +1,75 @@
+<ng-container *ngIf="data$ | async as data">
+  <div class="piano-roll-container" [class.pencil-mode-active]="data.isPencilMode">
+    <div class="piano-roll-controls">
+      <button (click)="togglePlayback()">{{ isPlaying ? "Stop" : "Play" }}</button>
+      <app-piano-roll-track-selection [visibleNotes]="visibleNotes"></app-piano-roll-track-selection>
+      <app-piano-roll-track-control *ngIf="data.currentTrack"></app-piano-roll-track-control>
+    </div>
+
+    <div class="piano-roll-view" *ngIf="data.currentTrack">
+      <div class="piano-keys">
+        <div class="key-spacer"></div>
+        <!-- Piano keys will be generated here -->
+        <div
+          *ngFor="let note of visibleNotes"
+          class="piano-key"
+          [class.black-key]="isBlackKey(note)"
+          [class.white-key]="!isBlackKey(note)"
+          (mousedown)="playNote(note, 0.8, data.currentTrack)"
+        >
+          {{ getNoteLabel(note) }}
+        </div>
+      </div>
+
+      <div
+        class="grid-container"
+        [class.pencil-mode]="data.isPencilMode"
+        [class.selection-mode]="!data.isPencilMode"
+        (mousedown)="startDrawing($event)"
+        (mousemove)="drawNote($event)"
+        (mouseup)="stopDrawing()"
+        (dblclick)="handleDoubleClick($event)"
+      >
+        <!-- Time indicators -->
+        <div class="time-indicators">
+          <div *ngFor="let beat of gridBeats" class="beat-marker">{{ beat }}</div>
+        </div>
+
+        <!-- Note grid -->
+        <div class="note-grid">
+          <div *ngFor="let row of gridRows" class="grid-row" [class.black-key-row]="isBlackKey(row.note)">
+            <div *ngFor="let cell of row.cells" class="grid-cell"></div>
+          </div>
+
+          <!-- Rendered notes -->
+          <div
+            *ngFor="let note of data.currentTrack.notes"
+            class="piano-roll-note"
+            [class.selected]="selectedNotes.includes(note)"
+            [class.primary-selected]="selectedNote === note"
+            [class.dragging]="isDragging && selectedNotes.includes(note)"
+            [style.top.px]="getNoteTop(note, visibleNotes)"
+            [style.left.px]="getNoteLeft(note)"
+            [style.width.px]="getNoteWidth(note)"
+            [style.height.px]="cellHeight"
+            (mousedown)="selectNote(note, $event)"
+          >
+            <div class="resize-handle" (mousedown)="startResizing($event, note)"></div>
+          </div>
+
+          <!-- Playback position indicator -->
+          <div class="playback-position" [style.left.px]="playbackPosition$ | async"></div>
+
+          <!-- Selection box for multi-select -->
+          <div id="selection-box" class="selection-box"></div>
+        </div>
+      </div>
+
+      <app-piano-roll-legend-box [isPencilMode]="data.isPencilMode"></app-piano-roll-legend-box>
+    </div>
+    <div class="empty-state" *ngIf="!data.currentTrack">
+      <p>No track selected. Create a new track to get started.</p>
+      <button (click)="createNewTrack()">Create Track</button>
+    </div>
+  </div>
+</ng-container>

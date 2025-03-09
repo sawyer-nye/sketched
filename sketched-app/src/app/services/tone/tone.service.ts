@@ -4,6 +4,7 @@ import { NonCustomOscillatorType } from 'tone/build/esm/source/oscillator/Oscill
 
 import { Note } from '@models/note.model';
 import { MetronomeClickType } from '@app/services/time/time.service';
+import { InstrumentType, Track } from '@app/models/piano-roll-note.model';
 
 export interface SynthSetup {
   id: number;
@@ -85,10 +86,46 @@ export class ToneService {
     synth?.triggerAttackRelease('C3', '2n', now);
   }
 
-  playNote(note: Note, velocity?: number): void {
+  playNoteOld(note: Note, velocity: number = 0.8): void {
     const now = Tone.now();
     const synthOne = this.synthSetups[0].synth;
     synthOne?.triggerAttackRelease(note.frequency, '4n', now, velocity);
+  }
+
+  playNote(note: Note, velocity: number = 0.8, track?: Track): void {
+    try {
+      const now = Tone.now();
+
+      const type = track?.instrumentType;
+
+      let synth: Tone.MonoSynth | Tone.PolySynth | Tone.Player;
+      if (type === InstrumentType.MONO_SYNTH) {
+        synth = this.synthSetups[0].synth;
+        synth.triggerAttackRelease(note.frequency, '4n', now, velocity);
+      } else if (type === InstrumentType.POLY_SYNTH) {
+        synth = this.polySynths[0];
+        synth.triggerAttackRelease(note.frequency, '4n', now, velocity);
+      } else if (type === InstrumentType.MONO_SAMPLE) {
+        synth = this.samples['snare']; //TODO: make this dynamic
+        synth.start();
+      } else if (type === InstrumentType.POLY_SAMPLE) {
+        // TODO: Implement poly sample
+        synth = this.samples['snare']; //TODO: make this dynamic
+        synth.start();
+      } else {
+        throw new Error(`Unsupported instrument type: ${type}`);
+      }
+    } catch (error) {
+      console.error('Error playing note:', error);
+
+      // Fallback to polySynth if there was an error
+      try {
+        const now = Tone.now();
+        this.polySynths[0]?.triggerAttackRelease(note.frequency, '8n', now, velocity);
+      } catch (fallbackError) {
+        console.error('Fallback also failed:', fallbackError);
+      }
+    }
   }
 
   playNotes(notes: Note[]): void {
