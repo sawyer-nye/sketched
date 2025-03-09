@@ -46,6 +46,7 @@ export class SequencerService {
   constructor(private readonly timeService: TimeService) {}
 
   registerHit(onTick: number, forInstrument: string, _forTickType: TickType = TickType.QUARTER): void {
+    console.log('registerHit', onTick, forInstrument, _forTickType);
     // const stream = this.ticks[forTickType];
     const stream = this.timeService.beatTick$;
     const newObservable = this.buildHitStream(onTick, stream);

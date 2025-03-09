@@ -85,10 +85,40 @@ export class ToneService {
     synth?.triggerAttackRelease('C3', '2n', now);
   }
 
-  playNote(note: Note, velocity?: number): void {
+  playNoteOld(note: Note, velocity: number = 0.8): void {
     const now = Tone.now();
     const synthOne = this.synthSetups[0].synth;
     synthOne?.triggerAttackRelease(note.frequency, '4n', now, velocity);
+  }
+
+  playNote(note: Note, velocity: number = 0.8): void {
+    try {
+      const now = Tone.now();
+
+      const synthOne = this.synthSetups[0].synth;
+      synthOne?.triggerAttackRelease(note.frequency, '4n', now, velocity);
+      // // Use the appropriate instrument based on the octave range
+      // if (note.octave <= 2) {
+      //   // Lower octaves - use polySynth for better bass response
+      //   this.polySynths[0]?.triggerAttackRelease(note.frequency, '8n', now, velocity);
+      // } else if (note.octave === 3) {
+      //   // Middle octave - use monoSynth
+      //   this.synthSetups[0].synth?.triggerAttackRelease(note.frequency, '8n', now, velocity);
+      // } else {
+      //   // Higher octaves - use a different polySynth
+      //   this.polySynths[1]?.triggerAttackRelease(note.frequency, '8n', now, velocity);
+      // }
+    } catch (error) {
+      console.error('Error playing note:', error);
+
+      // Fallback to polySynth if there was an error
+      try {
+        const now = Tone.now();
+        this.polySynths[0]?.triggerAttackRelease(note.frequency, '8n', now, velocity);
+      } catch (fallbackError) {
+        console.error('Fallback also failed:', fallbackError);
+      }
+    }
   }
 
   playNotes(notes: Note[]): void {

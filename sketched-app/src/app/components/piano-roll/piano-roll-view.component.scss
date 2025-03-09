@@ -1,0 +1,396 @@
+.piano-roll-container {
+  display: flex;
+  flex-direction: column;
+  height: 600px;
+  width: 100%;
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  overflow: hidden;
+  transition: border-color 0.3s ease;
+  
+  &.pencil-mode-active {
+    border: 1px solid #4caf50;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+    
+    .piano-keys .piano-key {
+      cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z'%3E%3C/path%3E%3C/svg%3E") 0 24, crosshair;
+    }
+    
+    .piano-roll-note {
+      &:hover {
+        background-color: #f44336; // Red on hover to indicate deletion
+        transform: scale(1.03);
+        border-color: #d32f2f;
+      }
+    }
+  }
+}
+
+.piano-roll-controls {
+  display: flex;
+  padding: 10px;
+  background-color: #e0e0e0;
+  border-bottom: 1px solid #ccc;
+
+  button {
+    padding: 5px 10px;
+    margin-right: 10px;
+    background-color: #3f51b5;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #303f9f;
+    }
+
+    &.active {
+      background-color: #ff5722;
+    }
+  }
+
+  .track-selection {
+    display: flex;
+    align-items: center;
+    margin-right: 15px;
+
+    select {
+      margin-left: 10px;
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      min-width: 150px;
+    }
+  }
+
+  .track-info {
+    display: flex;
+    align-items: center;
+
+    input,
+    select {
+      margin-right: 10px;
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .track-controls {
+      display: flex;
+      align-items: center;
+
+      input[type="range"] {
+        width: 100px;
+      }
+    }
+  }
+}
+
+.piano-roll-view {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.piano-keys {
+  width: 80px;
+  overflow-y: auto;
+  background-color: #fff;
+  border-right: 1px solid #ccc;
+
+  .piano-key {
+    height: 20px;
+    display: flex;
+    align-items: center;
+    padding-left: 5px;
+    font-size: 12px;
+    user-select: none;
+
+    &.white-key {
+      background-color: white;
+      color: #333;
+      border-bottom: 1px solid #ccc;
+    }
+
+    &.black-key {
+      background-color: #333;
+      color: white;
+      border-bottom: 1px solid #555;
+    }
+
+    &:hover {
+      background-color: #e3f2fd;
+      cursor: pointer;
+    }
+  }
+}
+
+.grid-container {
+  flex: 1;
+  position: relative;
+  overflow: auto;
+
+  &.pencil-mode {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z'%3E%3C/path%3E%3C/svg%3E") 0 24, crosshair;
+
+    .note-grid .grid-row .grid-cell:hover {
+      background-color: rgba(76, 175, 80, 0.2); // Green highlight for pencil mode
+    }
+    
+    .piano-roll-note {
+      cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='18' y1='6' x2='6' y2='18'%3E%3C/line%3E%3Cline x1='6' y1='6' x2='18' y2='18'%3E%3C/line%3E%3C/svg%3E") 10 10, pointer;
+    }
+  }
+
+  &.selection-mode {
+    cursor: default;
+
+    .note-grid .grid-row .grid-cell:hover {
+      background-color: rgba(33, 150, 243, 0.1); // Blue highlight for selection mode
+    }
+  }
+
+  .time-indicators {
+    height: 30px;
+    background-color: #eee;
+    border-bottom: 1px solid #ccc;
+    display: flex;
+
+    .beat-marker {
+      width: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      border-right: 1px solid #ddd;
+    }
+  }
+
+  .note-grid {
+    position: relative;
+
+    .grid-row {
+      height: 20px;
+      display: flex;
+      border-bottom: 1px solid #ddd;
+
+      &.black-key-row {
+        background-color: #f9f9f9;
+      }
+
+      .grid-cell {
+        width: 40px;
+        height: 100%;
+        border-right: 1px solid #eee;
+
+        &:nth-child(4n + 1) {
+          border-right: 1px solid #ccc;
+        }
+      }
+    }
+  }
+}
+
+.piano-roll-note {
+  position: absolute;
+  background-color: #2196f3;
+  border: 1px solid #1976d2;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  z-index: 1;
+
+  &:hover {
+    background-color: #1e88e5;
+    transform: scale(1.02);
+    z-index: 2;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  // In selection mode, make it clear notes can be dragged
+  .selection-mode & {
+    cursor: grab;
+    
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  &.selected {
+    background-color: #ff9800;
+    border-color: #f57c00;
+    z-index: 3;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    transform: scale(1.02);
+
+    &:hover {
+      background-color: #fb8c00;
+    }
+  }
+  
+  &.primary-selected {
+    background-color: #ff5722;
+    border-color: #e64a19;
+    z-index: 4;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    transform: scale(1.03);
+    
+    &:hover {
+      background-color: #f4511e;
+    }
+  }
+  
+  &.dragging {
+    opacity: 0.8;
+    cursor: grabbing !important;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    
+    &.selected {
+      box-shadow: 0 5px 15px rgba(245, 124, 0, 0.4);
+    }
+    
+    &.primary-selected {
+      box-shadow: 0 5px 15px rgba(230, 74, 25, 0.5);
+    }
+  }
+
+  .resize-handle {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+    cursor: ew-resize;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-left: 1px solid rgba(0, 0, 0, 0.2);
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.3);
+      width: 8px;
+    }
+  }
+}
+
+.playback-position {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: #f44336;
+  pointer-events: none;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  background-color: #f5f5f5;
+
+  p {
+    margin-bottom: 20px;
+    font-size: 16px;
+    color: #666;
+  }
+
+  button {
+    padding: 10px 20px;
+    background-color: #3f51b5;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #303f9f;
+    }
+  }
+}
+
+.debug-button {
+  background-color: #9c27b0 !important;
+
+  &:hover {
+    background-color: #7b1fa2 !important;
+  }
+}
+
+.test-pattern-button {
+  background-color: #ff9800 !important;
+
+  &:hover {
+    background-color: #f57c00 !important;
+  }
+}
+
+.grid-cell {
+  transition: background-color 0.1s ease;
+
+  &:hover {
+    background-color: rgba(33, 150, 243, 0.1);
+  }
+}
+
+// Keyboard shortcut hint
+.keyboard-shortcuts {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  border-radius: 4px;
+  font-size: 12px;
+  pointer-events: none;
+  opacity: 0.7;
+
+  ul {
+    margin: 0;
+    padding: 0 0 0 15px;
+  }
+}
+
+.mode-toggle {
+  background-color: grey !important; // grey when pencil mode is off
+  margin-left: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 10px !important;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #1976d2 !important;
+  }
+
+  &.active {
+    background-color: #4caf50 !important; // green when pencil mode is on
+
+    &:hover {
+      background-color: #388e3c !important;
+    }
+  }
+
+  span {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+
+  .icon {
+    font-size: 16px;
+  }
+}
+
+// Selection box for multi-select
+.selection-box {
+  position: absolute;
+  border: 2px dashed #2196f3;
+  background-color: rgba(33, 150, 243, 0.1);
+  pointer-events: none;
+  z-index: 5;
+  display: none;
+}
