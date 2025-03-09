@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest, map } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 
-import { Track } from '@models/piano-roll-note.model';
+import { InstrumentType, PianoRollNote, Track } from '@models/piano-roll-note.model';
 import { SequencerService, TickType } from '@services/sequencer/sequencer.service';
 
 @Injectable({
@@ -10,22 +10,29 @@ import { SequencerService, TickType } from '@services/sequencer/sequencer.servic
 })
 export class TrackService {
   private readonly _tracks = new BehaviorSubject<Track[]>([]);
-  private readonly _currentTrack = new BehaviorSubject<Track | null>(null);
+  private readonly _currentTrackId = new BehaviorSubject<string | null>(null);
 
   readonly tracks$: Observable<Track[]> = this._tracks.asObservable();
-  readonly currentTrack$: Observable<Track | null> = this._currentTrack.asObservable();
+  readonly currentTrackId$: Observable<string | null> = this._currentTrackId.asObservable();
+  readonly currentTrack$: Observable<Track | null> = combineLatest([this.tracks$, this.currentTrackId$]).pipe(
+    map(([tracks, currentTrackId]) => tracks.find((track) => track.id === currentTrackId) || null),
+  );
 
   constructor(private sequencerService: SequencerService) {
     // Initialize with a default track
-    this.createTrack();
+    // this.createTrack();
   }
 
   get tracks(): Track[] {
     return this._tracks.getValue();
   }
 
-  get currentTrack(): Track | null {
-    return this._currentTrack.getValue();
+  get currentTrackId(): string | null {
+    return this._currentTrackId.getValue();
+  }
+
+  set currentTrackId(trackId: string | null) {
+    this._currentTrackId.next(trackId);
   }
 
   createTrack(name: string = 'New Track'): Track {
@@ -33,7 +40,7 @@ export class TrackService {
       id: uuidv4(),
       name,
       notes: [],
-      instrumentId: 'monosynth',
+      instrumentType: InstrumentType.MONO_SYNTH,
       isMuted: false,
       isSolo: false,
       volume: 0.8,
@@ -42,8 +49,8 @@ export class TrackService {
     this._tracks.next([...this.tracks, newTrack]);
 
     // If no current track is selected, select this one
-    if (this.currentTrack === null) {
-      this._currentTrack.next(newTrack);
+    if (this.getCurrentTrack() === null) {
+      this.currentTrackId = newTrack.id;
     }
 
     return newTrack;
@@ -54,21 +61,54 @@ export class TrackService {
     this._tracks.next(filteredTracks);
 
     // If we removed the current track, select a new one if available
-    if (this.currentTrack?.id === trackId) {
-      this._currentTrack.next(filteredTracks.length > 0 ? filteredTracks[0] : null);
+    if (this.currentTrackId === trackId) {
+      this.currentTrackId = filteredTracks.length > 0 ? filteredTracks[0].id : null;
     }
   }
 
   setCurrentTrack(trackId: string): void {
     const track = this.tracks.find((track) => track.id === trackId) || null;
-    this._currentTrack.next(track);
+    this.currentTrackId = track?.id || null;
   }
 
   getCurrentTrack(): Track | null {
-    const trackId = this.currentTrack?.id;
+    const trackId = this.currentTrackId;
     if (!trackId) return null;
 
     return this.tracks.find((track) => track.id === trackId) || null;
+  }
+
+  addNote(note: PianoRollNote): void {
+    const currentTrack = this.getCurrentTrack();
+
+    if (!currentTrack) return;
+
+    this.updateTrack({
+      ...currentTrack,
+      notes: [...currentTrack.notes, note],
+    });
+  }
+
+  clearNotes(): void {
+    const currentTrack = this.getCurrentTrack();
+
+    if (!currentTrack) return;
+
+    this.updateTrack({
+      ...currentTrack,
+      notes: [],
+    });
+  }
+
+  deleteNote(note: PianoRollNote): void {
+    const currentTrack = this.getCurrentTrack();
+
+    if (!currentTrack) return;
+
+    this.updateTrack({
+      ...currentTrack,
+      notes: currentTrack.notes.filter((n) => n !== note),
+    });
   }
 
   updateTrack(updatedTrack: Track): void {
@@ -81,26 +121,26 @@ export class TrackService {
   registerAllTracksForPlayback(): void {
     // First, clear any previously registered hits to avoid duplicates
     this.deregisterAllTracksFromPlayback();
-    
+
     this.tracks.forEach((track) => {
       if (track.isMuted) return;
-      
+
       // Get all unique beat positions where notes start
       const uniqueBeats = new Set<number>();
-      track.notes.forEach(note => {
+      track.notes.forEach((note) => {
         uniqueBeats.add(Math.floor(note.startTime) + 1); // Convert to 1-based beats
       });
-      
+
       // Register a hit for each unique beat position
-      Array.from(uniqueBeats).forEach(beat => {
+      Array.from(uniqueBeats).forEach((beat) => {
         this.sequencerService.registerHit(
           beat,
           track.id, // Use track ID to identify the track
-          TickType.QUARTER
+          TickType.QUARTER,
         );
       });
     });
-    
+
     console.log('Registered all tracks for playback');
   }
 

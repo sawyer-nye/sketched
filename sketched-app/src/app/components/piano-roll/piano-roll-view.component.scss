@@ -1,4 +1,22 @@
 .piano-roll-container {
+  button {
+    padding: 5px 10px;
+    margin-right: 10px;
+    background-color: #3f51b5;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #303f9f;
+    }
+
+    &.active {
+      background-color: #ff5722;
+    }
+  }
+
   display: flex;
   flex-direction: column;
   height: 600px;
@@ -35,60 +53,6 @@
   padding: 10px;
   background-color: #e0e0e0;
   border-bottom: 1px solid #ccc;
-
-  button {
-    padding: 5px 10px;
-    margin-right: 10px;
-    background-color: #3f51b5;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-
-    &:hover {
-      background-color: #303f9f;
-    }
-
-    &.active {
-      background-color: #ff5722;
-    }
-  }
-
-  .track-selection {
-    display: flex;
-    align-items: center;
-    margin-right: 15px;
-
-    select {
-      margin-left: 10px;
-      padding: 5px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      min-width: 150px;
-    }
-  }
-
-  .track-info {
-    display: flex;
-    align-items: center;
-
-    input,
-    select {
-      margin-right: 10px;
-      padding: 5px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-
-    .track-controls {
-      display: flex;
-      align-items: center;
-
-      input[type="range"] {
-        width: 100px;
-      }
-    }
-  }
 }
 
 .piano-roll-view {
@@ -208,7 +172,7 @@
         height: 100%;
         border-right: 1px solid #eee;
 
-        &:nth-child(4n + 1) {
+        &:nth-child(4n) {
           border-right: 1px solid #ccc;
         }
       }
@@ -333,78 +297,11 @@
   }
 }
 
-.debug-button {
-  background-color: #9c27b0 !important;
-
-  &:hover {
-    background-color: #7b1fa2 !important;
-  }
-}
-
-.test-pattern-button {
-  background-color: #ff9800 !important;
-
-  &:hover {
-    background-color: #f57c00 !important;
-  }
-}
-
 .grid-cell {
   transition: background-color 0.1s ease;
 
   &:hover {
     background-color: rgba(33, 150, 243, 0.1);
-  }
-}
-
-// Keyboard shortcut hint
-.keyboard-shortcuts {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  padding: 10px;
-  background-color: rgba(0, 0, 0, 0.6);
-  color: white;
-  border-radius: 4px;
-  font-size: 12px;
-  pointer-events: none;
-  opacity: 0.7;
-
-  ul {
-    margin: 0;
-    padding: 0 0 0 15px;
-  }
-}
-
-.mode-toggle {
-  background-color: grey !important; // grey when pencil mode is off
-  margin-left: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 5px 10px !important;
-  transition: background-color 0.3s ease;
-
-  &:hover {
-    background-color: #1976d2 !important;
-  }
-
-  &.active {
-    background-color: #4caf50 !important; // green when pencil mode is on
-
-    &:hover {
-      background-color: #388e3c !important;
-    }
-  }
-
-  span {
-    display: flex;
-    align-items: center;
-    white-space: nowrap;
-  }
-
-  .icon {
-    font-size: 16px;
   }
 }
 

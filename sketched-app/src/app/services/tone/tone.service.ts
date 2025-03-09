@@ -4,6 +4,7 @@ import { NonCustomOscillatorType } from 'tone/build/esm/source/oscillator/Oscill
 
 import { Note } from '@models/note.model';
 import { MetronomeClickType } from '@app/services/time/time.service';
+import { InstrumentType, Track } from '@app/models/piano-roll-note.model';
 
 export interface SynthSetup {
   id: number;
@@ -91,23 +92,29 @@ export class ToneService {
     synthOne?.triggerAttackRelease(note.frequency, '4n', now, velocity);
   }
 
-  playNote(note: Note, velocity: number = 0.8): void {
+  playNote(note: Note, velocity: number = 0.8, track?: Track): void {
     try {
       const now = Tone.now();
 
-      const synthOne = this.synthSetups[0].synth;
-      synthOne?.triggerAttackRelease(note.frequency, '4n', now, velocity);
-      // // Use the appropriate instrument based on the octave range
-      // if (note.octave <= 2) {
-      //   // Lower octaves - use polySynth for better bass response
-      //   this.polySynths[0]?.triggerAttackRelease(note.frequency, '8n', now, velocity);
-      // } else if (note.octave === 3) {
-      //   // Middle octave - use monoSynth
-      //   this.synthSetups[0].synth?.triggerAttackRelease(note.frequency, '8n', now, velocity);
-      // } else {
-      //   // Higher octaves - use a different polySynth
-      //   this.polySynths[1]?.triggerAttackRelease(note.frequency, '8n', now, velocity);
-      // }
+      const type = track?.instrumentType;
+
+      let synth: Tone.MonoSynth | Tone.PolySynth | Tone.Player;
+      if (type === InstrumentType.MONO_SYNTH) {
+        synth = this.synthSetups[0].synth;
+        synth.triggerAttackRelease(note.frequency, '4n', now, velocity);
+      } else if (type === InstrumentType.POLY_SYNTH) {
+        synth = this.polySynths[0];
+        synth.triggerAttackRelease(note.frequency, '4n', now, velocity);
+      } else if (type === InstrumentType.MONO_SAMPLE) {
+        synth = this.samples[0];
+        synth.start();
+      } else if (type === InstrumentType.POLY_SAMPLE) {
+        // TODO: Implement poly sample
+        synth = this.samples[0];
+        synth.start();
+      } else {
+        throw new Error(`Unsupported instrument type: ${type}`);
+      }
     } catch (error) {
       console.error('Error playing note:', error);
 

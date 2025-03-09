@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Subscription } from 'rxjs';
-import { filter, map, tap } from 'rxjs/operators';
+import { Subscription, combineLatest } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 
 import { TimeService } from '@services/time/time.service';
 import { ToneService } from '@services/tone/tone.service';
@@ -11,18 +11,28 @@ import { SequencerService, Action, HitTarget } from '@services/sequencer/sequenc
 import { TrackService } from '@services/track/track.service';
 
 import { Note } from '@models/note.model';
-import { PianoRollNote, Track } from '@models/piano-roll-note.model';
+import { InstrumentType, PianoRollNote, Track } from '@models/piano-roll-note.model';
 import { NoteName } from '@enums/note-name.enum';
 import { PianoRollGridService } from '@app/services/piano-roll-grid.service';
 import { PianoRollPositionService } from '@app/services/piano-roll-position.service';
 import { PianoRollSelectionService } from '@app/services/piano-roll-selection.service';
 import { PianoRollNoteService } from '@app/services/piano-roll-note.service';
 import { GridRow, HitSubscription, SelectionBox } from '@app/components/piano-roll/piano-roll.interfaces';
+import { PianoRollLegendBoxComponent } from '@app/components/piano-roll/legend-box/piano-roll-legend-box.component';
+import { PianoRollStateService } from '@app/services/piano-roll-state.service';
+import { PianoRollTrackSelectionComponent } from '@app/components/piano-roll/controls/track-selection/piano-roll-track-selection.component';
+import { PianoRollTrackControlComponent } from '@app/components/piano-roll/controls/track-control/piano-roll-track-control.component';
 
 @Component({
   selector: 'app-piano-roll-view',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    PianoRollTrackSelectionComponent,
+    PianoRollLegendBoxComponent,
+    PianoRollTrackControlComponent,
+  ],
   templateUrl: './piano-roll-view.component.html',
   styleUrls: ['./piano-roll-view.component.scss'],
 })
@@ -31,6 +41,7 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
   private readonly positionService = inject(PianoRollPositionService);
   private readonly selectionService = inject(PianoRollSelectionService);
   private readonly noteService = inject(PianoRollNoteService);
+  private readonly pianoRollStateService = inject(PianoRollStateService);
 
   protected getNoteTop = this.positionService.getNoteTop;
   protected getNoteLeft = this.positionService.getNoteLeft;
@@ -57,28 +68,27 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
   isSelecting = false;
   selectionBox: SelectionBox | null = null;
 
-  // Track data
-  currentTrack: Track | null = null;
-
-  // Editing mode
-  isPencilMode = false;
-
   // Playback state
   isPlaying = false;
   private subscriptions: Subscription[] = [];
   private hitSubscriptions: HitSubscription[] = []; // Track hit subscriptions
 
   constructor(
-    private timeService: TimeService,
-    private toneService: ToneService,
-    private musicService: MusicService,
-    private sequencerService: SequencerService,
-    public trackService: TrackService,
+    protected readonly timeService: TimeService,
+    protected readonly toneService: ToneService,
+    protected readonly musicService: MusicService,
+    protected readonly sequencerService: SequencerService,
+    protected readonly trackService: TrackService,
   ) {}
+
+  data$ = combineLatest({
+    isPencilMode: this.pianoRollStateService.isPencilMode$,
+    currentTrack: this.trackService.currentTrack$,
+    // tracks: this.trackService.tracks$,
+  });
 
   ngOnInit(): void {
     this.setupGrid();
-    this.setupTrackObservables();
     this.setupPlaybackTracking();
   }
 
@@ -98,15 +108,6 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
     const { gridRows, visibleNotes } = this.gridService.setupGridRows(this.totalBeats);
     this.gridRows = gridRows;
     this.visibleNotes = visibleNotes;
-  }
-
-  setupTrackObservables(): void {
-    // Subscribe to the current track
-    this.subscriptions.push(
-      this.trackService.currentTrack$.pipe(filter((track) => track !== null)).subscribe((track: Track | null) => {
-        this.currentTrack = track;
-      }),
-    );
   }
 
   setupPlaybackTracking(): void {
@@ -160,7 +161,7 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
             console.log(`Tick ${tickVal} matches target ${hitTarget.onTick} for track ${hitTarget.instrument}`);
 
             // Find and play the notes at this beat
-            if (this.currentTrack && this.currentTrack.id === hitTarget.instrument) {
+            if (this.trackService.getCurrentTrack()?.id === hitTarget.instrument) {
               this.playNotesAtBeat(hitTarget.onTick);
             }
           }
@@ -192,39 +193,41 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
   }
 
   // Utility method to check if an instrument is monophonic
-  private isMonophonic(instrumentId: string): boolean {
+  private isMonophonic(instrumentType: InstrumentType): boolean {
     // These instruments can only play one note at a time
-    return instrumentId === 'monosynth';
+    return instrumentType === InstrumentType.MONO_SYNTH;
   }
 
   // Play all notes at a specific beat
   playNotesAtBeat(beat: number): void {
-    if (!this.isPlaying || !this.currentTrack || this.currentTrack.isMuted) {
+    const currentTrack = this.trackService.getCurrentTrack();
+
+    if (!this.isPlaying || !currentTrack || currentTrack.isMuted) {
       return;
     }
 
     console.log(`Looking for notes at beat ${beat}`);
 
     // Find all notes that start at this beat
-    const notesToPlay = this.currentTrack.notes.filter((note) => Math.floor(note.startTime) + 1 === beat);
+    const notesToPlay = currentTrack.notes.filter((note) => Math.floor(note.startTime) + 1 === beat);
 
     console.log(`Found ${notesToPlay.length} notes to play at beat ${beat}`);
 
     // If this is a monophonic instrument, only play the highest note
-    if (this.isMonophonic(this.currentTrack.instrumentId) && notesToPlay.length > 1) {
+    if (this.isMonophonic(currentTrack.instrumentType) && notesToPlay.length > 1) {
       // Find the note with the highest position (highest pitch)
       const highestNote = notesToPlay.reduce((highest, current) =>
         current.note.position > highest.note.position ? current : highest,
       );
 
       console.log(`Playing highest note for MonoSynth: ${this.getNoteLabel(highestNote.note)}`);
-      this.toneService.playNote(highestNote.note, highestNote.velocity);
+      this.playNote(highestNote.note, highestNote.velocity, currentTrack);
     }
     // For polyphonic instruments or single notes, play all notes
     else {
       notesToPlay.forEach((note) => {
         console.log(`Playing note: ${this.getNoteLabel(note.note)}`);
-        this.toneService.playNote(note.note, note.velocity);
+        this.playNote(note.note, note.velocity, currentTrack);
       });
     }
   }
@@ -266,7 +269,9 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
 
   // Update startDrawing to handle selection box in selection mode
   startDrawing(event: MouseEvent): void {
-    if (!this.currentTrack) return;
+    const currentTrack = this.trackService.getCurrentTrack();
+
+    if (!currentTrack) return;
 
     // Only start dragging if left mouse button is pressed
     if (event.button !== 0) return;
@@ -287,7 +292,7 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
     const existingNote = this.findNoteAt(beatIndex, noteIndex);
 
     // Handle based on current mode
-    if (this.isPencilMode) {
+    if (this.pianoRollStateService.isPencilMode) {
       // PENCIL MODE
       this.isDrawing = true;
 
@@ -305,15 +310,14 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
           velocity: 0.8,
         };
 
-        this.currentTrack.notes.push(newNote);
-        this.trackService.updateTrack(this.currentTrack);
+        this.trackService.addNote(newNote);
 
         // Set this as the selected note for potential duration extension
         this.selectedNote = newNote;
         this.selectedNotes = [newNote];
 
         // Play the note as feedback
-        this.toneService.playNote(note, 0.5);
+        this.playNote(note, 0.5, currentTrack);
 
         console.log(`Created note at beat ${beatIndex + 1} (${this.getNoteLabel(note)})`);
       }
@@ -335,14 +339,14 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
           } else {
             this.selectedNotes.push(existingNote);
             this.selectedNote = existingNote;
-            this.toneService.playNote(existingNote.note, 0.5);
+            this.playNote(existingNote.note, 0.5, currentTrack);
           }
         } else {
           // If not pressing Ctrl/Cmd, clear selection and select just this note
           if (!this.selectedNotes.includes(existingNote)) {
             this.selectedNotes = [existingNote];
             this.selectedNote = existingNote;
-            this.toneService.playNote(existingNote.note, 0.5);
+            this.playNote(existingNote.note, 0.5, currentTrack);
           }
         }
 
@@ -367,14 +371,16 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
 
   // Updated drawNote to handle selection box and multi-select dragging
   drawNote(event: MouseEvent): void {
-    if (!this.currentTrack) return;
+    const currentTrack = this.trackService.getCurrentTrack();
+
+    if (!currentTrack) return;
 
     const gridContainer = event.currentTarget as HTMLElement;
     const rect = gridContainer.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top - 30; // Adjust for time indicators height
 
-    if (this.isPencilMode) {
+    if (this.pianoRollStateService.isPencilMode) {
       this.handlePencilModeDrawing(x);
     } else {
       if (this.isSelecting && this.selectionBox) {
@@ -388,7 +394,9 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
   }
 
   private handlePencilModeDrawing(x: number): void {
-    if (!this.isDrawing || !this.selectedNote) return;
+    const currentTrack = this.trackService.getCurrentTrack();
+
+    if (!currentTrack || !this.isDrawing || !this.selectedNote) return;
 
     // Calculate the beat position
     const currentBeat = this.positionService.getBeatFromX(x);
@@ -402,7 +410,7 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
     this.selectedNote.duration = Math.min(newDuration, maxDuration);
 
     // Update the track with the modified note
-    this.trackService.updateTrack(this.currentTrack!);
+    this.trackService.updateTrack(currentTrack!);
   }
 
   private handleSelectionBoxUpdate(x: number, y: number): void {
@@ -441,6 +449,10 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
   }
 
   private moveSelectedNotes(beatDifference: number, noteDifference: number): void {
+    const currentTrack = this.trackService.getCurrentTrack();
+
+    if (!currentTrack) return;
+
     this.selectedNotes.forEach((note) => {
       // Store original positions for restoration if needed
       const originalStartTime = note.startTime;
@@ -460,10 +472,12 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
     });
 
     // Update the track with the modified notes
-    this.trackService.updateTrack(this.currentTrack!);
+    this.trackService.updateTrack(currentTrack!);
   }
 
   private updateNotePitch(note: PianoRollNote, originalNote: Note, noteDifference: number): void {
+    const currentTrack = this.trackService.getCurrentTrack()!;
+
     // Find the current index of the note in visibleNotes
     const currentNoteIndex = this.visibleNotes.findIndex(
       (n) => n.position === originalNote.position && n.octave === originalNote.octave,
@@ -479,12 +493,13 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
 
       // Play the new note at a lower velocity for feedback if it's the primary selected note
       if (note === this.selectedNote) {
-        this.toneService.playNote(note.note, 0.3);
+        this.playNote(note.note, 0.3, currentTrack);
       }
     }
   }
 
   private handleNoteResizing(x: number): void {
+    const currentTrack = this.trackService.getCurrentTrack();
     // Calculate the grid position
     const currentBeat = this.positionService.getBeatFromX(x);
 
@@ -499,7 +514,7 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
     this.resizeSelectedNotes(newDuration, resizeRatio);
 
     // Update the track with all modified notes
-    this.trackService.updateTrack(this.currentTrack!);
+    this.trackService.updateTrack(currentTrack!);
   }
 
   private resizeSelectedNotes(newDuration: number, resizeRatio: number): void {
@@ -541,7 +556,9 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
 
   // Method to select notes that are within the selection box
   private selectNotesInBox(): void {
-    if (!this.selectionBox || !this.currentTrack) return;
+    const currentTrack = this.trackService.getCurrentTrack();
+
+    if (!currentTrack || !this.selectionBox) return;
 
     // Clear previous selection if not in add mode (Ctrl key)
     if (!this.selectedNotes.length) {
@@ -550,7 +567,7 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
 
     this.selectedNotes = this.selectionService.getNotesInBox(
       this.selectionBox,
-      this.currentTrack.notes,
+      currentTrack.notes,
       this.cellHeight,
       this.visibleNotes,
     );
@@ -567,8 +584,10 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
   selectNote(note: PianoRollNote, event: MouseEvent): void {
     event.stopPropagation(); // Prevent the click from triggering other handlers
 
+    const currentTrack = this.trackService.getCurrentTrack()!;
+
     // Different behavior based on mode
-    if (this.isPencilMode) {
+    if (this.pianoRollStateService.isPencilMode) {
       // In pencil mode, clicking a note deletes it
       this.deleteNote(note);
     } else {
@@ -594,7 +613,7 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
       }
 
       // Play the note at a lower velocity as feedback
-      this.toneService.playNote(note.note, 0.5);
+      this.playNote(note.note, 0.5, currentTrack);
 
       console.log(`Selected note: ${this.getNoteLabel(note.note)} at beat ${Math.floor(note.startTime) + 1}`);
 
@@ -633,22 +652,24 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
 
   // Helper method to delete a note
   deleteNote(note: PianoRollNote): void {
-    if (!this.currentTrack) return;
+    const currentTrack = this.trackService.getCurrentTrack();
+
+    if (!currentTrack) return;
 
     const noteLabel = this.getNoteLabel(note.note);
     const beatPosition = Math.floor(note.startTime) + 1;
 
     // Remove the note from the track
-    this.currentTrack.notes = this.currentTrack.notes.filter((n) => n !== note);
+    currentTrack.notes = currentTrack.notes.filter((n) => n !== note);
 
     // Update the track
-    this.trackService.updateTrack(this.currentTrack);
+    this.trackService.updateTrack(currentTrack);
 
     console.log(`Deleted note ${noteLabel} at beat ${beatPosition}`);
   }
 
-  playNote(note: Note): void {
-    this.toneService.playNote(note);
+  playNote(note: Note, velocity: number = 0.8, track: Track): void {
+    this.toneService.playNote(note, velocity, track);
   }
 
   // Utility functions
@@ -669,13 +690,15 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
   }
 
   private findNoteAt(beatIndex: number, noteIndex: number): PianoRollNote | null {
-    if (!this.currentTrack || noteIndex < 0 || noteIndex >= this.visibleNotes.length) return null;
+    const currentTrack = this.trackService.getCurrentTrack();
+
+    if (!currentTrack || noteIndex < 0 || noteIndex >= this.visibleNotes.length) return null;
 
     // Get the note at this position in our reversed grid
     const noteAtPosition = this.visibleNotes[noteIndex];
 
     return (
-      this.currentTrack.notes.find(
+      currentTrack.notes.find(
         (note) =>
           note.note.position === noteAtPosition.position &&
           note.note.octave === noteAtPosition.octave &&
@@ -688,8 +711,12 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
   // Enhanced keyboard event handler for deleting notes
   @HostListener('document:keydown', ['$event'])
   handleKeyDown(event: KeyboardEvent): void {
+    const currentTrack = this.trackService.getCurrentTrack();
+
+    if (!currentTrack) return;
+
     // Delete selected notes when Delete or Backspace is pressed
-    if ((event.key === 'Delete' || event.key === 'Backspace') && this.selectedNotes.length > 0 && this.currentTrack) {
+    if ((event.key === 'Delete' || event.key === 'Backspace') && this.selectedNotes.length > 0) {
       console.log(`Deleting ${this.selectedNotes.length} selected notes`);
       this.deleteSelectedNotes();
       event.preventDefault();
@@ -698,13 +725,15 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
 
   // Enhanced method for deleting selected notes
   deleteSelectedNotes(): void {
-    if (this.selectedNotes.length === 0 || !this.currentTrack) return;
+    const currentTrack = this.trackService.getCurrentTrack();
+
+    if (this.selectedNotes.length === 0 || !currentTrack) return;
 
     // Remove all selected notes from the track
-    this.currentTrack.notes = this.currentTrack.notes.filter((note) => !this.selectedNotes.includes(note));
+    currentTrack.notes = currentTrack.notes.filter((note) => !this.selectedNotes.includes(note));
 
     // Update the track
-    this.trackService.updateTrack(this.currentTrack);
+    this.trackService.updateTrack(currentTrack);
 
     // Clear selection
     this.selectedNotes = [];
@@ -722,7 +751,9 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
     // Prevent the note selection handler from firing
     event.stopPropagation();
 
-    if (!this.currentTrack) return;
+    const currentTrack = this.trackService.getCurrentTrack();
+
+    if (!currentTrack) return;
 
     this.isResizing = true;
 
@@ -745,6 +776,8 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
 
   // Handle when drawing/dragging stops
   stopDrawing(): void {
+    const currentTrack = this.trackService.getCurrentTrack()!;
+
     // Hide the selection box if it was being drawn
     if (this.isSelecting) {
       const selectionBoxElement = document.getElementById('selection-box');
@@ -754,10 +787,10 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
     }
 
     // Provide audio feedback and logging when appropriate
-    if (this.isPencilMode) {
+    if (this.pianoRollStateService.isPencilMode) {
       if (this.isDrawing && this.selectedNote) {
         // Play the note when we finish drawing as audio feedback
-        this.toneService.playNote(this.selectedNote.note, 0.5);
+        this.playNote(this.selectedNote.note, 0.5, currentTrack);
         console.log(
           `Created note with duration ${this.selectedNote.duration} at beat ${Math.floor(this.selectedNote.startTime) + 1}`,
         );
@@ -769,7 +802,7 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
       // In regular mode, if we were dragging notes, play the primary one and log the action
       if (this.isDragging && this.selectedNote) {
         // Play audio feedback of the primary selected note
-        this.toneService.playNote(this.selectedNote.note, 0.5);
+        this.playNote(this.selectedNote.note, 0.5, currentTrack);
 
         // Check if we've actually moved any notes (in case of a simple click)
         if (this.selectedNotes.length === 1) {
@@ -792,82 +825,22 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
 
   // Toggle between regular and pencil mode
   toggleEditMode(): void {
-    this.isPencilMode = !this.isPencilMode;
-    console.log(`Switched to ${this.isPencilMode ? 'pencil' : 'regular'} mode`);
+    this.pianoRollStateService.toggleIsPencilMode();
+    console.log(`Switched to ${this.pianoRollStateService.isPencilMode ? 'pencil' : 'regular'} mode`);
 
     // Clear selection when switching modes
     this.selectedNote = null;
     this.selectedNotes = [];
   }
 
-  // Add a button to the UI to show debug info
-  showDebugInfo(): void {
-    if (!this.currentTrack) {
-      console.log('No track selected');
-      return;
-    }
-
-    console.log('Current Track:', {
-      id: this.currentTrack.id,
-      name: this.currentTrack.name,
-      instrumentId: this.currentTrack.instrumentId,
-      noteCount: this.currentTrack.notes.length,
-    });
-
-    console.log('Notes:');
-    this.currentTrack.notes.forEach((note, index) => {
-      console.log(`Note ${index}:`, {
-        pitch: this.getNoteLabel(note.note),
-        startTime: note.startTime,
-        beat: Math.floor(note.startTime) + 1,
-        duration: note.duration,
-        velocity: note.velocity,
-      });
-    });
-  }
-
-  // Add a test pattern for debugging
-  addTestPattern(): void {
-    if (!this.currentTrack) {
-      console.log('No track selected');
-      return;
-    }
-
-    // Clear existing notes
-    this.currentTrack.notes = [];
-
-    // Add a simple ascending pattern (one note every other beat)
-    for (let i = 0; i < 8; i++) {
-      // Every other position in the visible notes array (to create a scale pattern)
-      const noteIndex = i * 2;
-      if (noteIndex < this.visibleNotes.length) {
-        const note = this.visibleNotes[noteIndex];
-
-        const newNote: PianoRollNote = {
-          note: { ...note },
-          startTime: i * 2, // Place notes on even-numbered beats (0, 2, 4, 6, etc.)
-          duration: 1, // Each note is 1 beat long
-          velocity: 0.8,
-        };
-
-        this.currentTrack.notes.push(newNote);
-      }
-    }
-
-    // Update the track
-    this.trackService.updateTrack(this.currentTrack);
-    console.log('Added test pattern with', this.currentTrack.notes.length, 'notes');
-
-    // Show the debug info
-    this.showDebugInfo();
-  }
-
   // Handle double-click events (only in regular mode)
   handleDoubleClick(event: MouseEvent): void {
-    // In pencil mode, single clicks already create notes, so no need to handle double-clicks
-    if (this.isPencilMode) return;
+    const currentTrack = this.trackService.getCurrentTrack();
 
-    if (!this.currentTrack) return;
+    // In pencil mode, single clicks already create notes, so no need to handle double-clicks
+    if (this.pianoRollStateService.isPencilMode) return;
+
+    if (!currentTrack) return;
 
     const gridContainer = event.currentTarget as HTMLElement;
     const rect = gridContainer.getBoundingClientRect();
@@ -903,14 +876,14 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
           velocity: 0.8,
         };
 
-        this.currentTrack.notes.push(newNote);
-        this.trackService.updateTrack(this.currentTrack);
+        currentTrack.notes.push(newNote);
+        this.trackService.updateTrack(currentTrack);
 
         // Select the newly created note
         this.selectedNote = newNote;
 
         // Play the note as feedback - use low velocity for preview
-        this.toneService.playNote(note, 0.5);
+        this.playNote(note, 0.5, currentTrack);
 
         console.log(`Created note at beat ${beatIndex + 1} (${this.getNoteLabel(note)})`);
       }
@@ -918,7 +891,9 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
   }
 
   handleResizeMove = (event: MouseEvent): void => {
-    if (!this.isResizing || !this.selectedNote || !this.currentTrack) return;
+    const currentTrack = this.trackService.getCurrentTrack();
+
+    if (!this.isResizing || !this.selectedNote || !currentTrack) return;
 
     // Calculate the pixel difference in the horizontal direction
     const pixelDeltaX = event.clientX - this.dragStartPosition.x;
@@ -955,7 +930,7 @@ export class PianoRollViewComponent implements OnInit, OnDestroy {
         });
 
         // Update the track with all modified notes
-        this.trackService.updateTrack(this.currentTrack);
+        this.trackService.updateTrack(currentTrack);
 
         // Update drag start position based on the applied grid movements
         this.dragStartPosition.x += deltaBeat * this.cellWidth;
