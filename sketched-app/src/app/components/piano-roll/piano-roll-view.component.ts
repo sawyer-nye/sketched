@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostListener, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription, combineLatest } from 'rxjs';
@@ -35,6 +35,7 @@ import { PianoRollTrackControlComponent } from '@app/components/piano-roll/contr
   ],
   templateUrl: './piano-roll-view.component.html',
   styleUrls: ['./piano-roll-view.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PianoRollViewComponent implements OnInit, OnDestroy {
   private readonly gridService = inject(PianoRollGridService);
